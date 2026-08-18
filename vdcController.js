@@ -5,10 +5,11 @@ const fs = require('fs');
 const nativeDir = path.join(__dirname, 'native');
 const exePath = path.join(nativeDir, 'ledsdk.exe');
 const defaultBgImage = path.join(__dirname, 'media', 'bgcolor.png');
+const defaultVideo = path.join(__dirname, 'media', 'video.mp4');
 
 /**
- * Onbon VDC LED বোর্ডে টেক্সট বা ইমেজ পাঠানোর ফাংশন
- * @param {string} payload - টেক্সট বা ইমেজ ফাইলের পাথ (e.g. "12301" বা "D:\\IPIS_Edge_VDC\\media\\bgcolor.png")
+ * Onbon VDC LED বোর্ডে টেক্সট, ইমেজ বা ভিডিও পাঠানোর ফাংশন
+ * @param {string} payload - টেক্সট, ইমেজ বা ভিডিও ফাইলের পাথ (e.g. "12301", "D:\\IPIS_Edge_VDC\\media\\bgcolor.png", "D:\\IPIS_Edge_VDC\\media\\video.mp4")
  * @param {string} ip - VDC বোর্ডের IP (Default: 10.0.30.81)
  * @param {number} port - পোর্ট (Default: 5005)
  * @returns {Promise<string>}
@@ -50,7 +51,22 @@ function sendVdcImage(imagePath = defaultBgImage, ip = '10.0.30.81', port = 5005
     return sendVdcMessage(resolvedPath, ip, port);
 }
 
-module.exports = { sendVdcMessage, sendVdcImage };
+/**
+ * Onbon VDC LED বোর্ডে ভিডিও ফাইল (.mp4, .avi, .mkv ইত্যাদি) পাঠানোর ডেডিকেটেড ফাংশন
+ * @param {string} [videoPath] - ভিডিও ফাইলের পাথ (Default: media/video.mp4)
+ * @param {string} [ip] - VDC বোর্ডের IP (Default: 10.0.30.81)
+ * @param {number} [port] - পোর্ট (Default: 5005)
+ * @returns {Promise<string>}
+ */
+function sendVdcVideo(videoPath = defaultVideo, ip = '10.0.30.81', port = 5005) {
+    const resolvedPath = path.resolve(videoPath);
+    if (!fs.existsSync(resolvedPath)) {
+        return Promise.reject(new Error(`Video file not found: ${resolvedPath}`));
+    }
+    return sendVdcMessage(resolvedPath, ip, port);
+}
+
+module.exports = { sendVdcMessage, sendVdcImage, sendVdcVideo };
 
 // টার্মিনাল থেকে সরাসরি রান করার হ্যান্ডলার
 if (require.main === module) {

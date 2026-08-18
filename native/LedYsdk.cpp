@@ -1407,44 +1407,49 @@ void Program_video(char *ip, int port, LPCWSTR videoFilePath) {
     return;
   }
 
+  // Clear dynamic RAM area so old dynamic text/bitmaps do not overlay on the video program
   if (clear_dynamic) {
     clear_dynamic(ip, (unsigned short)port, L"guest", L"guest");
-    Sleep(350); // Mandatory pause allowing controller hardware to flush active
-                // dynamic buffers
+    Sleep(100);
   }
-  std::cout << "[SDK] Dynamic area cleared and Sleep(350) executed before "
-               "video playback."
-            << std::endl;
 
-  std::wcout << L"[SDK] Dispatching MP4 Video -> IP: " << ip << L":" << port
-             << L" | File: " << videoFilePath << std::endl;
+  std::wcout << L"[SDK] Dispatching Program Media Video -> IP: " << ip
+             << L":" << port << L" | File: " << videoFilePath << std::endl;
+
+  // 1. Create standard program playlist for 192x112 (BX-Y08 controller type 8536)
   unsigned long playlist = create_playlist(192, 112, 8536);
-  unsigned long program = create_program(L"program_1", _TEXT_T("0xff000000"));
+  unsigned long program = create_program(L"video_prog", _TEXT_T("0xff000000"));
 
+  // 2. Create video area and add video unit covering 192x112
   unsigned long video_area = create_video();
   int err1 = add_video_unit(video_area, 100, 1, 0, 0, videoFilePath, L"");
   int err2 = add_video(program, video_area, 0, 0, 192, 112, 0, 0, 0, L"", L"");
 
-  int err3 = add_program_in_playlist(playlist, program, 0, 10, L"", L"", L"",
-                                     L"", 127);
+  // 3. Add program to playlist with loop playback
+  int err3 = add_program_in_playlist(
+      playlist, program, 0, 65535,
+      L"2020-01-01", L"2035-12-31", L"00:00:00", L"23:59:59", 127);
 
+  // 4. Dispatch via send_program (file playlist upload)
   wchar_t tempPath[MAX_PATH];
   GetTempPathW(MAX_PATH, tempPath);
   long long free_size = 0, total_size = 0;
+
   if (send_program) {
     try {
       int err = send_program(ip, (unsigned short)port, L"guest", L"guest",
                              tempPath, playlist, 0, &free_size, &total_size);
-      std::cout << "[SDK] send_program result code: " << err << std::endl;
+      std::cout << "[SDK] send_program (Video Program) result code: " << err
+                << " | Free: " << free_size << " | Total: " << total_size << std::endl;
     } catch (...) {
-      std::cerr << "ERROR: Exception occurred while sending video program to "
-                   "LED board."
+      std::cerr << "ERROR: Exception occurred while sending video program to LED board."
                 << std::endl;
     }
   } else {
     std::cerr << "ERROR: send_program function pointer is null." << std::endl;
   }
 
+  // 5. Clean up handles
   if (cancel_send_program)
     cancel_send_program(playlist);
   if (delete_playlist)
@@ -1836,6 +1841,18 @@ int SendToLedBoard(const char* ip, unsigned short port, const char* message,
       defaultBg = L"media\\bgcolor.png";
       if (GetFileAttributesW(defaultBg.c_str()) != INVALID_FILE_ATTRIBUTES) {
         wMsg = defaultBg;
+        isFile = true;
+      }
+    }
+  } else if (!isFile && (_wcsicmp(wMsg.c_str(), L"VIDEO") == 0)) {
+    std::wstring defaultVid = L"D:\\IPIS_Edge_VDC\\media\\video.mp4";
+    if (GetFileAttributesW(defaultVid.c_str()) != INVALID_FILE_ATTRIBUTES) {
+      wMsg = defaultVid;
+      isFile = true;
+    } else {
+      defaultVid = L"media\\video.mp4";
+      if (GetFileAttributesW(defaultVid.c_str()) != INVALID_FILE_ATTRIBUTES) {
+        wMsg = defaultVid;
         isFile = true;
       }
     }
