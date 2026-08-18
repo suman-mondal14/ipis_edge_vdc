@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { exec, spawn } = require('child_process');
 
-// ================= কনফিগারেশন =================
+// ================= CONFIGURATION =================
 const HTTP_PORT = 3500;
 const MEDIA_DIR = 'D:\\media';
 const CDC_IP = '10.0.0.253';
@@ -13,12 +13,12 @@ const PING_INTERVAL_MS = 5000;
 const MAX_FAIL_COUNT = 2;
 const MEDIA_CONTROLLER_SCRIPT = path.join(__dirname, 'linkFailMediaController.js');
 
-// ডিরেক্টরি নিশ্চিত করা
+// Ensure media storage directory exists on disk
 if (!fs.existsSync(MEDIA_DIR)) {
     fs.mkdirSync(MEDIA_DIR, { recursive: true });
 }
 
-// ================= ১. HTTP MEDIA RECEIVER ENGINE =================
+// ================= 1. HTTP MEDIA RECEIVER ENGINE =================
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -71,7 +71,7 @@ app.listen(HTTP_PORT, '0.0.0.0', () => {
     console.log(`[HTTP API] Offline Media Receiver running on port ${HTTP_PORT}`);
 });
 
-// ================= ২. LINK FAILOVER WATCHDOG ENGINE =================
+// ================= 2. LINK FAILOVER WATCHDOG ENGINE =================
 let mediaProcess = null;
 let consecutiveFailures = 0;
 let consecutiveSuccesses = 0;
@@ -149,10 +149,10 @@ function startWatchdogLoop() {
     }, PING_INTERVAL_MS);
 }
 
-// ইঞ্জিন চালু করা
+// Start watchdog monitoring loop
 startWatchdogLoop();
 
-// ক্লিন শাটডাউন
+// Handle graceful shutdown
 process.on('SIGINT', () => {
     stopMediaController();
     process.exit(0);

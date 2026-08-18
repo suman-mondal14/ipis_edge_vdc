@@ -8,10 +8,10 @@ const defaultBgImage = path.join(__dirname, 'media', 'bgcolor.png');
 const defaultVideo = path.join(__dirname, 'media', 'video.mp4');
 
 /**
- * Onbon VDC LED বোর্ডে টেক্সট, ইমেজ বা ভিডিও পাঠানোর ফাংশন
- * @param {string} payload - টেক্সট, ইমেজ বা ভিডিও ফাইলের পাথ (e.g. "12301", "D:\\IPIS_Edge_VDC\\media\\bgcolor.png", "D:\\IPIS_Edge_VDC\\media\\video.mp4")
- * @param {string} ip - VDC বোর্ডের IP (Default: 10.0.30.81)
- * @param {number} port - পোর্ট (Default: 5005)
+ * Sends text, image, or video payload to the Onbon VDC LED controller
+ * @param {string} payload - Text message, image file path, or video file path (e.g. "12301", "D:\\IPIS_Edge_VDC\\media\\bgcolor.png", "D:\\IPIS_Edge_VDC\\media\\video.mp4")
+ * @param {string} ip - Target VDC board IP address (Default: 10.0.30.81)
+ * @param {number} port - Target communication port (Default: 5005)
  * @returns {Promise<string>}
  */
 function sendVdcMessage(payload, ip = '10.0.30.81', port = 5005) {
@@ -22,7 +22,7 @@ function sendVdcMessage(payload, ip = '10.0.30.81', port = 5005) {
 
         const args = [ip, port.toString(), payload];
 
-        // DLL সঠিকভাবে লোড হওয়ার জন্য cwd 'native' ফোল্ডার রাখা হয়েছে
+        // Set cwd to 'native' folder so that dependent C++ DLLs are loaded properly
         execFile(exePath, args, { cwd: nativeDir }, (error, stdout, stderr) => {
             if (error) {
                 console.error(`[VDC ERROR] Execution failed with code: ${error.code}`);
@@ -37,10 +37,10 @@ function sendVdcMessage(payload, ip = '10.0.30.81', port = 5005) {
 }
 
 /**
- * Onbon VDC LED বোর্ডে ইমেজ পাঠানোর ডেডিকেটেড ফাংশন
- * @param {string} [imagePath] - ইমেজ ফাইলের পাথ (Default: media/bgcolor.png)
- * @param {string} [ip] - VDC বোর্ডের IP (Default: 10.0.30.81)
- * @param {number} [port] - পোর্ট (Default: 5005)
+ * Dedicated helper function to send an image to the Onbon VDC LED controller
+ * @param {string} [imagePath] - Image file path (Default: media/bgcolor.png)
+ * @param {string} [ip] - Target VDC board IP address (Default: 10.0.30.81)
+ * @param {number} [port] - Target communication port (Default: 5005)
  * @returns {Promise<string>}
  */
 function sendVdcImage(imagePath = defaultBgImage, ip = '10.0.30.81', port = 5005) {
@@ -52,10 +52,10 @@ function sendVdcImage(imagePath = defaultBgImage, ip = '10.0.30.81', port = 5005
 }
 
 /**
- * Onbon VDC LED বোর্ডে ভিডিও ফাইল (.mp4, .avi, .mkv ইত্যাদি) পাঠানোর ডেডিকেটেড ফাংশন
- * @param {string} [videoPath] - ভিডিও ফাইলের পাথ (Default: media/video.mp4)
- * @param {string} [ip] - VDC বোর্ডের IP (Default: 10.0.30.81)
- * @param {number} [port] - পোর্ট (Default: 5005)
+ * Dedicated helper function to send a video file (.mp4, .avi, .mkv, etc.) to the Onbon VDC LED controller
+ * @param {string} [videoPath] - Video file path (Default: media/video.mp4)
+ * @param {string} [ip] - Target VDC board IP address (Default: 10.0.30.81)
+ * @param {number} [port] - Target communication port (Default: 5005)
  * @returns {Promise<string>}
  */
 function sendVdcVideo(videoPath = defaultVideo, ip = '10.0.30.81', port = 5005) {
@@ -68,7 +68,7 @@ function sendVdcVideo(videoPath = defaultVideo, ip = '10.0.30.81', port = 5005) 
 
 module.exports = { sendVdcMessage, sendVdcImage, sendVdcVideo };
 
-// টার্মিনাল থেকে সরাসরি রান করার হ্যান্ডলার
+// Direct CLI execution handler
 if (require.main === module) {
     const inputArg = process.argv[2] || '12301';
     const ipArg = process.argv[3] || '10.0.30.81';

@@ -2,25 +2,25 @@ const fs = require('fs');
 const path = require('path');
 const { execFile } = require('child_process');
 
-// কনফিগারেশন
+// Configuration
 const MEDIA_DIR = 'D:\\media';
 const NATIVE_DIR = path.join(__dirname, 'native');
 const EXE_PATH = path.join(NATIVE_DIR, 'ledsdk.exe');
 const TARGET_IP = '10.0.30.81';
 const TARGET_PORT = 5005;
 
-// প্রতিটি ইমেজ ডিসপ্লেতে কত সেকেন্ড থাকবে (ভিডিওর ক্ষেত্রে ডিফল্ট ডিউরেশন)
+// Display duration for static images (and fallback duration for videos)
 const IMAGE_HOLD_TIME_MS = 10000; // 10 seconds
-const VIDEO_PLAY_TIME_MS = 25000; // 25 seconds (প্রয়োজনে ভিডিওর দৈর্ঘ্য অনুযায়ী বাড়াতে পারো)
+const VIDEO_PLAY_TIME_MS = 25000; // 25 seconds (can be adjusted according to video length)
 
 const SUPPORTED_IMAGE_EXTS = ['.png', '.jpg', '.jpeg', '.bmp'];
 const SUPPORTED_VIDEO_EXTS = ['.mp4', '.avi', '.mkv'];
 
-// স্লিপ হেল্পার
+// Sleep helper promise
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
- * Onbon LED বোর্ডে নির্দিষ্ট মিডিয়া ফাইল পাঠানোর ফাংশন
+ * Sends a specific media file to the Onbon LED controller
  */
 function sendMediaToBoard(filePath, ip = TARGET_IP, port = TARGET_PORT) {
     return new Promise((resolve, reject) => {
@@ -39,7 +39,7 @@ function sendMediaToBoard(filePath, ip = TARGET_IP, port = TARGET_PORT) {
 }
 
 /**
- * D:\media ফোল্ডার স্ক্যান করে ভ্যালিড ফাইল লিস্ট বের করা
+ * Scans D:\media directory and returns a list of valid supported media files
  */
 function getMediaFiles() {
     if (!fs.existsSync(MEDIA_DIR)) {
@@ -57,7 +57,7 @@ function getMediaFiles() {
 }
 
 /**
- * ইনফাইনাইট মিডিয়া লুপ রানার
+ * Infinite loop runner to cycle through offline media playlist
  */
 async function startLinkFailLoop() {
     console.log('====================================================');
@@ -97,7 +97,7 @@ async function startLinkFailLoop() {
             try {
                 await sendMediaToBoard(file);
 
-                // ইমেজ বা ভিডিওর জন্য নির্ধারিত সময় অপেক্ষা
+                // Hold display for the designated image/video playback duration
                 const waitTime = isVideo ? VIDEO_PLAY_TIME_MS : IMAGE_HOLD_TIME_MS;
                 console.log(`[LinkFail] Holding on display for ${waitTime / 1000}s...`);
                 await sleep(waitTime);
@@ -112,7 +112,7 @@ async function startLinkFailLoop() {
     }
 }
 
-// এক্সপোর্ট এবং সরাসরি এক্সিকিউশন
+// Exports and direct execution handler
 module.exports = { startLinkFailLoop, sendMediaToBoard };
 
 if (require.main === module) {
