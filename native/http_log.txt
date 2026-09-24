@@ -4208,3 +4208,183 @@
 2026-08-18 12:14:38:http://10.0.30.81:5005/;stok=baf4fde6283d1232f4badf477afb5899/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UserLogout","tracecode":"104827"}}}
 
 2026-08-18 12:14:38:{"remotefunction": {"name": "userlogout"}}
+2026-09-24 12:28:54:V20.12.29  >> begin
+2026-09-24 12:28:54:http://10.0.30.81:5005/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"GetVerificationCode","tracecode":"100041"}}}
+
+2026-09-24 12:28:54:{"remotefunction": {"name": "getverificationcode", "output": {"verificationcode": "20260924145853330753"}}}
+2026-09-24 12:28:54:http://10.0.30.81:5005/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UserLogin","tracecode":"118467","input":{"password":"184ee79b9088e5c7cf67f03c9e93befdeaf3edc5","username":"guest","verificationcode":"20260924145853330753"}}}}
+
+2026-09-24 12:28:54:{"remotefunction": {"name": "userlogin", "output": {"sessionID": "e1c9ba81055d3f0d52427123bfc34ec4"}}}
+2026-09-24 12:28:55:http://10.0.30.81:5005/;stok=e1c9ba81055d3f0d52427123bfc34ec4/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"clearDynamic","tracecode":"106334","input":{"id":["*"                ]}}}}
+
+2026-09-24 12:28:55:{"remotefunction": {"name": "cleardynamic"}}
+2026-09-24 12:28:55:http://10.0.30.81:5005/;stok=e1c9ba81055d3f0d52427123bfc34ec4/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UserLogout","tracecode":"126500"}}}
+
+2026-09-24 12:28:55:{"remotefunction": {"name": "userlogout"}}
+2026-09-24 12:28:55:http://10.0.30.81:5005/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"GetVerificationCode","tracecode":"119169"}}}
+
+2026-09-24 12:28:55:{"remotefunction": {"name": "getverificationcode", "output": {"verificationcode": "20260924145853939255"}}}
+2026-09-24 12:28:55:http://10.0.30.81:5005/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UserLogin","tracecode":"115724","input":{"password":"de279da434a38a33c761c9a5d945380a97e1849b","username":"guest","verificationcode":"20260924145853939255"}}}}
+
+2026-09-24 12:28:55:{"remotefunction": {"name": "userlogin", "output": {"sessionID": "aae0970474d33f2c7166c23b0a3c3fd8"}}}
+2026-09-24 12:28:55:http://10.0.30.81:5005/;stok=aae0970474d33f2c7166c23b0a3c3fd8/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UpdateDynamic","tracecode":"111478","input":{"dynamics":[{"height":"112","id":"0","relativeProgram":"","runMode":"0","transparency":"100","updateFrequency":"","width":"192","xCoord":"0","yCoord":"0","unit":[{"content":"C:\\WINDOWS\\TEMP\\scaled_temp_image.bmp","gifFlag":"0","order":"0","stayTime":"65535","stuntSpeed":"10","stuntType":"52","type":"0"}                        ]}                ],"cover":"1","immediatelyPlay":""}}}}
+
+2026-09-24 12:28:55:{"remotefunction": {"error": {"code": 20, "mesg": "Dynamic unit content base64 decode failed: Incorrect padding"}, "name": "updatedynamic"}}
+2026-09-24 12:28:55:http://10.0.30.81:5005/;stok=aae0970474d33f2c7166c23b0a3c3fd8/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UserLogout","tracecode":"129358"}}}
+
+2026-09-24 12:28:55:{"remotefunction": {"name": "userlogout"}}
+2026-09-24 12:28:55:http://10.0.30.81:5005/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"GetVerificationCode","tracecode":"126962"}}}
+
+2026-09-24 12:28:55:{"remotefunction": {"name": "getverificationcode", "output": {"verificationcode": "20260924145853985737"}}}
+2026-09-24 12:28:55:http://10.0.30.81:5005/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UserLogin","tracecode":"124464","input":{"password":"81b99b6a4a8fc1cb3eed8d9393d788fcb9e5e6e4","username":"guest","verificationcode":"20260924145853985737"}}}}
+
+2026-09-24 12:28:55:{"remotefunction": {"name": "userlogin", "output": {"sessionID": "11412c374bdaf1804b43124df0d79e24"}}}
+2026-09-24 12:28:55:http://10.0.30.81:5005/;stok=11412c374bdaf1804b43124df0d79e24/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"EnableUploadDownload","tracecode":"105705","input":{"flag":"1","type":"upload"}}}}
+
+2026-09-24 12:28:55:{"remotefunction": {"name": "enableuploaddownload"}}
+2026-09-24 12:28:55:http://10.0.30.81:5005/;stok=11412c374bdaf1804b43124df0d79e24/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"EnableUploadDownload","tracecode":"116827","input":{"flag":"0","type":"upload"}}}}
+
+2026-09-24 12:28:55:{"remotefunction": {"name": "enableuploaddownload"}}
+2026-09-24 12:28:55:http://10.0.30.81:5005/;stok=11412c374bdaf1804b43124df0d79e24/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UserLogout","tracecode":"109961"}}}
+
+2026-09-24 12:28:55:{"remotefunction": {"name": "userlogout"}}
+2026-09-24 12:29:06:V20.12.29  >> begin
+2026-09-24 12:29:06:http://10.0.30.81:5005/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"GetVerificationCode","tracecode":"100041"}}}
+
+2026-09-24 12:29:06:{"remotefunction": {"name": "getverificationcode", "output": {"verificationcode": "20260924145904449427"}}}
+2026-09-24 12:29:06:http://10.0.30.81:5005/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UserLogin","tracecode":"118467","input":{"password":"9426bd2f79c27485963a6b2b41ede95f648adae4","username":"guest","verificationcode":"20260924145904449427"}}}}
+
+2026-09-24 12:29:06:{"remotefunction": {"name": "userlogin", "output": {"sessionID": "6bbbd2a9db49aaa89b04a00c731e821a"}}}
+2026-09-24 12:29:06:http://10.0.30.81:5005/;stok=6bbbd2a9db49aaa89b04a00c731e821a/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"clearDynamic","tracecode":"106334","input":{"id":["*"                ]}}}}
+
+2026-09-24 12:29:06:{"remotefunction": {"name": "cleardynamic"}}
+2026-09-24 12:29:06:http://10.0.30.81:5005/;stok=6bbbd2a9db49aaa89b04a00c731e821a/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UserLogout","tracecode":"126500"}}}
+
+2026-09-24 12:29:06:{"remotefunction": {"name": "userlogout"}}
+2026-09-24 12:29:06:http://10.0.30.81:5005/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"GetVerificationCode","tracecode":"119169"}}}
+
+2026-09-24 12:29:06:{"remotefunction": {"name": "getverificationcode", "output": {"verificationcode": "20260924145904357924"}}}
+2026-09-24 12:29:06:http://10.0.30.81:5005/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UserLogin","tracecode":"115724","input":{"password":"6062304ee54ef3b55a65ac7eb1a62e44337261aa","username":"guest","verificationcode":"20260924145904357924"}}}}
+
+2026-09-24 12:29:06:{"remotefunction": {"name": "userlogin", "output": {"sessionID": "a975301e4b612d4c59dfa43d7cc7f445"}}}
+2026-09-24 12:29:06:http://10.0.30.81:5005/;stok=a975301e4b612d4c59dfa43d7cc7f445/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"GetProperty","tracecode":"111478","input":{"controllertype":"","height":"","screendata":"","storagemedia":"","width":""}}}}
+
+2026-09-24 12:29:06:{"remotefunction": {"name": "getproperty", "output": {"controllertype": "9304", "height": "128", "screendata": "1", "storagemedia": "emmc", "width": "432"}}}
+2026-09-24 12:29:06:http://10.0.30.81:5005/;stok=a975301e4b612d4c59dfa43d7cc7f445/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"QueryDisk","tracecode":"129358","input":{"storagemedia":"emmc"}}}}
+
+2026-09-24 12:29:06:{"remotefunction": {"name": "querydisk", "output": {"filesystem": "ext4", "freesize": "3210231808", "totalsize": "3348062208", "usedpercent": "3.10%", "usedsize": "103817216"}}}
+2026-09-24 12:29:06:SendProgramProc  >> Make begin
+2026-09-24 12:29:06:SendProgramProc  >> Make ok
+2026-09-24 12:29:06:http://10.0.30.81:5005/;stok=a975301e4b612d4c59dfa43d7cc7f445/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"FindFile","tracecode":"126962","input":{"items":[{"filename":"share\/9820cffec0a991bb0fbff0be38c13980.mp4"},{"filename":"programs\/68c8979b65c9aa0134c1413135e52495.xml"},{"filename":"lists\/6046d7d984104c09b705e02274f6d8f1.xml"}                ]}}}}
+
+2026-09-24 12:29:06:{"remotefunction": {"name": "findfile", "output": {"items": [{"filename": "share/9820cffec0a991bb0fbff0be38c13980.mp4", "mtime": "2026-09-23 18:43:07", "size": "6549159"}, {"filename": "programs/68c8979b65c9aa0134c1413135e52495.xml", "mtime": "2026-09-24 14:30:07", "size": "371"}, {"filename": "lists/6046d7d984104c09b705e02274f6d8f1.xml", "mtime": "2026-09-24 14:30:07", "size": "361"}]}}}
+2026-09-24 12:29:06:http://10.0.30.81:5005/;stok=a975301e4b612d4c59dfa43d7cc7f445/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"EnableUploadDownload","tracecode":"124464","input":{"flag":"1","type":"upload"}}}}
+
+2026-09-24 12:29:06:{"remotefunction": {"name": "enableuploaddownload"}}
+2026-09-24 12:29:06:http://10.0.30.81:5005/;stok=a975301e4b612d4c59dfa43d7cc7f445/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"FindFile","tracecode":"105705","input":{"items":[{"filename":"share\/9820cffec0a991bb0fbff0be38c13980.mp4"}                ]}}}}
+
+2026-09-24 12:29:06:{"remotefunction": {"name": "findfile", "output": {"items": [{"filename": "share/9820cffec0a991bb0fbff0be38c13980.mp4", "mtime": "2026-09-23 18:43:07", "size": "6549159"}]}}}
+2026-09-24 12:29:06:http://10.0.30.81:5005/;stok=a975301e4b612d4c59dfa43d7cc7f445/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"FindFile","tracecode":"128145","input":{"items":[{"filename":"programs\/68c8979b65c9aa0134c1413135e52495.xml"}                ]}}}}
+
+2026-09-24 12:29:06:{"remotefunction": {"name": "findfile", "output": {"items": [{"filename": "programs/68c8979b65c9aa0134c1413135e52495.xml", "mtime": "2026-09-24 14:30:07", "size": "371"}]}}}
+2026-09-24 12:29:06:http://10.0.30.81:5005/;stok=a975301e4b612d4c59dfa43d7cc7f445/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"FindFile","tracecode":"123281","input":{"items":[{"filename":"lists\/6046d7d984104c09b705e02274f6d8f1.xml"}                ]}}}}
+
+2026-09-24 12:29:06:{"remotefunction": {"name": "findfile", "output": {"items": [{"filename": "lists/6046d7d984104c09b705e02274f6d8f1.xml", "mtime": "2026-09-24 14:30:07", "size": "361"}]}}}
+2026-09-24 12:29:07:http://10.0.30.81:5005/;stok=a975301e4b612d4c59dfa43d7cc7f445/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"EnableUploadDownload","tracecode":"116827","input":{"flag":"0","type":"upload"}}}}
+
+2026-09-24 12:29:07:{"remotefunction": {"name": "enableuploaddownload"}}
+2026-09-24 12:29:07:http://10.0.30.81:5005/;stok=a975301e4b612d4c59dfa43d7cc7f445/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"checkPlayer","tracecode":"109961"}}}
+
+2026-09-24 12:29:07:{"remotefunction": {"name": "checkplayer", "output": {"playermode": "0", "playstatus": "Unlock", "programlist": "", "programname": ""}}}
+2026-09-24 12:29:07:http://10.0.30.81:5005/;stok=a975301e4b612d4c59dfa43d7cc7f445/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"StopPlay","tracecode":"100491","input":{"save":"no","type":"program"}}}}
+
+2026-09-24 12:29:07:{"remotefunction": {"name": "stopplay", "output": {"type": "program"}}}
+2026-09-24 12:29:07:http://10.0.30.81:5005/;stok=a975301e4b612d4c59dfa43d7cc7f445/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"LockProgram","tracecode":"102995","input":{"programlockedname":"","programlockedstatus":"0"}}}}
+
+2026-09-24 12:29:07:{"remotefunction": {"name": "lockprogram", "output": {"type": "false"}}}
+2026-09-24 12:29:07:http://10.0.30.81:5005/;stok=a975301e4b612d4c59dfa43d7cc7f445/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"Play","tracecode":"111942","input":{"playlist":"lists\/6046d7d984104c09b705e02274f6d8f1.xml","save":"no","type":"program"}}}}
+
+2026-09-24 12:29:07:{"remotefunction": {"error": {"code": 30, "mesg": "Mediaplayer process play failed : Wrong parameter of the sceen"}, "name": "play"}}
+2026-09-24 12:29:07:http://10.0.30.81:5005/;stok=a975301e4b612d4c59dfa43d7cc7f445/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UserLogout","tracecode":"104827"}}}
+
+2026-09-24 12:29:07:{"remotefunction": {"name": "userlogout"}}
+2026-09-24 12:29:32:V20.12.29  >> begin
+2026-09-24 12:29:32:http://10.0.30.81:5005/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"GetVerificationCode","tracecode":"100041"}}}
+
+2026-09-24 12:29:32:{"remotefunction": {"name": "getverificationcode", "output": {"verificationcode": "20260924145931422091"}}}
+2026-09-24 12:29:32:http://10.0.30.81:5005/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UserLogin","tracecode":"118467","input":{"password":"dc4f2fb5f12a0938f64b54ca77d14b5ce4d2a9fe","username":"guest","verificationcode":"20260924145931422091"}}}}
+
+2026-09-24 12:29:32:{"remotefunction": {"name": "userlogin", "output": {"sessionID": "150747909342edaee5b872edb0324808"}}}
+2026-09-24 12:29:32:http://10.0.30.81:5005/;stok=150747909342edaee5b872edb0324808/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"clearDynamic","tracecode":"106334","input":{"id":["*"                ]}}}}
+
+2026-09-24 12:29:32:{"remotefunction": {"name": "cleardynamic"}}
+2026-09-24 12:29:32:http://10.0.30.81:5005/;stok=150747909342edaee5b872edb0324808/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UserLogout","tracecode":"126500"}}}
+
+2026-09-24 12:29:32:{"remotefunction": {"name": "userlogout"}}
+2026-09-24 12:29:33:http://10.0.30.81:5005/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"GetVerificationCode","tracecode":"119169"}}}
+
+2026-09-24 12:29:33:{"remotefunction": {"name": "getverificationcode", "output": {"verificationcode": "20260924145931225118"}}}
+2026-09-24 12:29:33:http://10.0.30.81:5005/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UserLogin","tracecode":"115724","input":{"password":"e35cfba137d91e749fa02eb694e30de6843b1ee3","username":"guest","verificationcode":"20260924145931225118"}}}}
+
+2026-09-24 12:29:33:{"remotefunction": {"name": "userlogin", "output": {"sessionID": "c618b2fef30fbaca8b6b98987a474b0d"}}}
+2026-09-24 12:29:33:http://10.0.30.81:5005/;stok=c618b2fef30fbaca8b6b98987a474b0d/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UpdateDynamic","tracecode":"111478","input":{"dynamics":[{"height":"112","id":"0","relativeProgram":"","runMode":"0","transparency":"100","updateFrequency":"","width":"192","xCoord":"0","yCoord":"0","unit":[{"content":"C:\\WINDOWS\\TEMP\\scaled_temp_image.bmp","gifFlag":"0","order":"0","stayTime":"65535","stuntSpeed":"10","stuntType":"52","type":"0"}                        ]}                ],"cover":"1","immediatelyPlay":""}}}}
+
+2026-09-24 12:29:33:{"remotefunction": {"error": {"code": 20, "mesg": "Dynamic unit content base64 decode failed: Incorrect padding"}, "name": "updatedynamic"}}
+2026-09-24 12:29:33:http://10.0.30.81:5005/;stok=c618b2fef30fbaca8b6b98987a474b0d/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UserLogout","tracecode":"129358"}}}
+
+2026-09-24 12:29:33:{"remotefunction": {"name": "userlogout"}}
+2026-09-24 12:29:33:http://10.0.30.81:5005/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"GetVerificationCode","tracecode":"126962"}}}
+
+2026-09-24 12:29:33:{"remotefunction": {"name": "getverificationcode", "output": {"verificationcode": "20260924145931696475"}}}
+2026-09-24 12:29:33:http://10.0.30.81:5005/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UserLogin","tracecode":"124464","input":{"password":"d13b7b834ef10cb927779afffb4224fd5f1c5284","username":"guest","verificationcode":"20260924145931696475"}}}}
+
+2026-09-24 12:29:33:{"remotefunction": {"name": "userlogin", "output": {"sessionID": "670ef31bc9a927400b52492a450431f5"}}}
+2026-09-24 12:29:33:http://10.0.30.81:5005/;stok=670ef31bc9a927400b52492a450431f5/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"EnableUploadDownload","tracecode":"105705","input":{"flag":"1","type":"upload"}}}}
+
+2026-09-24 12:29:33:{"remotefunction": {"name": "enableuploaddownload"}}
+2026-09-24 12:29:33:http://10.0.30.81:5005/;stok=670ef31bc9a927400b52492a450431f5/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"EnableUploadDownload","tracecode":"116827","input":{"flag":"0","type":"upload"}}}}
+
+2026-09-24 12:29:33:{"remotefunction": {"name": "enableuploaddownload"}}
+2026-09-24 12:29:33:http://10.0.30.81:5005/;stok=670ef31bc9a927400b52492a450431f5/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UserLogout","tracecode":"109961"}}}
+
+2026-09-24 12:29:33:{"remotefunction": {"name": "userlogout"}}
+2026-09-24 12:30:02:V20.12.29  >> begin
+2026-09-24 12:30:02:http://10.0.30.81:5005/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"GetVerificationCode","tracecode":"100041"}}}
+
+2026-09-24 12:30:02:{"remotefunction": {"name": "getverificationcode", "output": {"verificationcode": "20260924150000814574"}}}
+2026-09-24 12:30:02:http://10.0.30.81:5005/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UserLogin","tracecode":"118467","input":{"password":"40330df154ff9649e6fbf3f18533769eb7bdbf5e","username":"guest","verificationcode":"20260924150000814574"}}}}
+
+2026-09-24 12:30:02:{"remotefunction": {"name": "userlogin", "output": {"sessionID": "eac6e3716d4e997501ab83419457b6e7"}}}
+2026-09-24 12:30:02:http://10.0.30.81:5005/;stok=eac6e3716d4e997501ab83419457b6e7/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"clearDynamic","tracecode":"106334","input":{"id":["*"                ]}}}}
+
+2026-09-24 12:30:02:{"remotefunction": {"name": "cleardynamic"}}
+2026-09-24 12:30:02:http://10.0.30.81:5005/;stok=eac6e3716d4e997501ab83419457b6e7/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UserLogout","tracecode":"126500"}}}
+
+2026-09-24 12:30:02:{"remotefunction": {"name": "userlogout"}}
+2026-09-24 12:30:02:http://10.0.30.81:5005/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"GetVerificationCode","tracecode":"119169"}}}
+
+2026-09-24 12:30:02:{"remotefunction": {"name": "getverificationcode", "output": {"verificationcode": "20260924150001225467"}}}
+2026-09-24 12:30:02:http://10.0.30.81:5005/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UserLogin","tracecode":"115724","input":{"password":"bbe180312f57be35bab6f838daa71cbf6369b1b4","username":"guest","verificationcode":"20260924150001225467"}}}}
+
+2026-09-24 12:30:02:{"remotefunction": {"name": "userlogin", "output": {"sessionID": "fe1a289bd0b0ea281d572e852bff27db"}}}
+2026-09-24 12:30:02:http://10.0.30.81:5005/;stok=fe1a289bd0b0ea281d572e852bff27db/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UpdateDynamic","tracecode":"111478","input":{"dynamics":[{"height":"112","id":"0","relativeProgram":"","runMode":"0","transparency":"100","updateFrequency":"","width":"192","xCoord":"0","yCoord":"0","unit":[{"content":"C:\\WINDOWS\\TEMP\\scaled_temp_image.bmp","gifFlag":"0","order":"0","stayTime":"65535","stuntSpeed":"10","stuntType":"52","type":"0"}                        ]}                ],"cover":"1","immediatelyPlay":""}}}}
+
+2026-09-24 12:30:02:{"remotefunction": {"error": {"code": 20, "mesg": "Dynamic unit content base64 decode failed: Incorrect padding"}, "name": "updatedynamic"}}
+2026-09-24 12:30:02:http://10.0.30.81:5005/;stok=fe1a289bd0b0ea281d572e852bff27db/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UserLogout","tracecode":"129358"}}}
+
+2026-09-24 12:30:02:{"remotefunction": {"name": "userlogout"}}
+2026-09-24 12:30:02:http://10.0.30.81:5005/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"GetVerificationCode","tracecode":"126962"}}}
+
+2026-09-24 12:30:02:{"remotefunction": {"name": "getverificationcode", "output": {"verificationcode": "20260924150001504061"}}}
+2026-09-24 12:30:02:http://10.0.30.81:5005/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UserLogin","tracecode":"124464","input":{"password":"cea17892334184b8e9c24ae71f2d60010c079071","username":"guest","verificationcode":"20260924150001504061"}}}}
+
+2026-09-24 12:30:02:{"remotefunction": {"name": "userlogin", "output": {"sessionID": "79cf5d72017c275555e16f2db1c83a73"}}}
+2026-09-24 12:30:03:http://10.0.30.81:5005/;stok=79cf5d72017c275555e16f2db1c83a73/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"EnableUploadDownload","tracecode":"105705","input":{"flag":"1","type":"upload"}}}}
+
+2026-09-24 12:30:03:{"remotefunction": {"name": "enableuploaddownload"}}
+2026-09-24 12:30:03:http://10.0.30.81:5005/;stok=79cf5d72017c275555e16f2db1c83a73/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"EnableUploadDownload","tracecode":"116827","input":{"flag":"0","type":"upload"}}}}
+
+2026-09-24 12:30:03:{"remotefunction": {"name": "enableuploaddownload"}}
+2026-09-24 12:30:03:http://10.0.30.81:5005/;stok=79cf5d72017c275555e16f2db1c83a73/post:{"protocol":{"name":"YQ-COM2","version":"1.0","remotefunction":{"name":"UserLogout","tracecode":"109961"}}}
+
+2026-09-24 12:30:03:{"remotefunction": {"name": "userlogout"}}
