@@ -13,7 +13,7 @@ extern int SendToLedBoard(const char* ip, unsigned short port, const char* messa
 int main(int argc, char* argv[]) {
     std::cout << "========================================" << std::endl;
     std::cout << "  IPIS Edge VDC - Onbon LED Controller  " << std::endl;
-    std::cout << "  Target Resolution: 192x112 (BX-Y08)   " << std::endl;
+    std::cout << "  Target Resolution: 432x128 (BX-Y2L)   " << std::endl;
     std::cout << "========================================" << std::endl;
 
     // Use CommandLineToArgvW to capture Unicode command-line arguments properly

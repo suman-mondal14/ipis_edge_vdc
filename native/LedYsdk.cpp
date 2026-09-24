@@ -14,6 +14,8 @@ using namespace Gdiplus;
 #include <atlstr.h>
 #include <sstream>
 #include <vector>
+#include <algorithm>
+#include <cwctype>
 
 using namespace std;
 #include "base64.h"
@@ -171,12 +173,12 @@ typedef int(__stdcall *Pcancel_screen_cus_turnonoff)(char *ip,
 
 typedef unsigned long(__stdcall *Pcreate_text)();
 typedef int(__stdcall *Padd_text_unit_text)(unsigned long area_tree,
-                                            int stay_time, int display_speed,
-                                            LPCWSTR font_name, int font_size,
-                                            LPCWSTR font_attributes,
-                                            LPCWSTR font_alignment,
-                                            LPCWSTR font_color,
-                                            LPCWSTR bg_color, LPCWSTR content);
+                                             int stay_time, int display_speed,
+                                             LPCWSTR font_name, int font_size,
+                                             LPCWSTR font_attributes,
+                                             LPCWSTR font_alignment,
+                                             LPCWSTR font_color,
+                                             LPCWSTR bg_color, LPCWSTR content);
 typedef int(__stdcall *Padd_text)(unsigned long tree, unsigned long area_tree,
                                   int x, int y, int w, int h, int transparency,
                                   int display_effects, int unit_type);
@@ -185,55 +187,55 @@ typedef int(__stdcall *Pget_screen_parameters)(char *ip, unsigned short port,
                                                LPCWSTR user_pwd,
                                                unsigned char *cards);
 
-PInitSdk init_sdk;
-PReleaseSdk release_sdk;
-Pcreate_playlist create_playlist;
-Pcreate_program create_program;
-Padd_program_in_playlist add_program_in_playlist;
-Psend_program send_program;
-Pcancel_send_program cancel_send_program;
-Pdelete_playlist delete_playlist;
-Pcreate_dynamic create_dynamic;
-Pdelete_dynamic delete_dynamic;
-Padd_dynamic_unit add_dynamic_unit;
-Padd_dynamic add_dynamic;
-Pupdate_dynamic update_dynamic;
-Pupdate_dynamic_unit update_dynamic_unit;
-Pupdate_dynamic_small update_dynamic_small;
-Pupdate_dynamic_unit_small update_dynamic_unit_small;
-Pclear_dynamic clear_dynamic;
-Pcheck_time check_time;
-Preboot reboot;
-Pcreate_pic create_pic;
-Padd_pic_unit add_pic_unit;
-Padd_pic add_pic;
-Pcreate_time create_time;
-Padd_time_unit add_time_unit;
-Padd_time add_time;
-Pcreate_video create_video;
-Padd_video_unit add_video_unit;
-Padd_video add_video;
-Plock_screen lock_screen;
-Pset_screen_volumn set_screen_volumn;
-Pset_screen_brightness set_screen_brightness;
-Pset_screen_auto_brightness set_screen_auto_brightness;
-Pset_screen_cus_brightness set_screen_cus_brightness;
-Pset_screen_turnonoff set_screen_turnonoff;
-Pcreate_turnonoff create_turnonoff;
-Padd_turnonoff add_turnonoff;
-Pdelete_turnonoff delete_turnonoff;
-Pset_screen_cus_turnonoff set_screen_cus_turnonoff;
-Pcancel_screen_cus_turnonoff cancel_screen_cus_turnonoff;
-Pcreate_text create_text;
-Padd_text_unit_text add_text_unit_text;
-Padd_text add_text;
-Pget_screen_parameters get_screen_parameters;
+PInitSdk init_sdk = NULL;
+PReleaseSdk release_sdk = NULL;
+Pcreate_playlist create_playlist = NULL;
+Pcreate_program create_program = NULL;
+Padd_program_in_playlist add_program_in_playlist = NULL;
+Psend_program send_program = NULL;
+Pcancel_send_program cancel_send_program = NULL;
+Pdelete_playlist delete_playlist = NULL;
+Pcreate_dynamic create_dynamic = NULL;
+Pdelete_dynamic delete_dynamic = NULL;
+Padd_dynamic_unit add_dynamic_unit = NULL;
+Padd_dynamic add_dynamic = NULL;
+Pupdate_dynamic update_dynamic = NULL;
+Pupdate_dynamic_unit update_dynamic_unit = NULL;
+Pupdate_dynamic_small update_dynamic_small = NULL;
+Pupdate_dynamic_unit_small update_dynamic_unit_small = NULL;
+Pclear_dynamic clear_dynamic = NULL;
+Pcheck_time check_time = NULL;
+Preboot reboot = NULL;
+Pcreate_pic create_pic = NULL;
+Padd_pic_unit add_pic_unit = NULL;
+Padd_pic add_pic = NULL;
+Pcreate_time create_time = NULL;
+Padd_time_unit add_time_unit = NULL;
+Padd_time add_time = NULL;
+Pcreate_video create_video = NULL;
+Padd_video_unit add_video_unit = NULL;
+Padd_video add_video = NULL;
+Plock_screen lock_screen = NULL;
+Pset_screen_volumn set_screen_volumn = NULL;
+Pset_screen_brightness set_screen_brightness = NULL;
+Pset_screen_auto_brightness set_screen_auto_brightness = NULL;
+Pset_screen_cus_brightness set_screen_cus_brightness = NULL;
+Pset_screen_turnonoff set_screen_turnonoff = NULL;
+Pcreate_turnonoff create_turnonoff = NULL;
+Padd_turnonoff add_turnonoff = NULL;
+Pdelete_turnonoff delete_turnonoff = NULL;
+Pset_screen_cus_turnonoff set_screen_cus_turnonoff = NULL;
+Pcancel_screen_cus_turnonoff cancel_screen_cus_turnonoff = NULL;
+Pcreate_text create_text = NULL;
+Padd_text_unit_text add_text_unit_text = NULL;
+Padd_text add_text = NULL;
+Pget_screen_parameters get_screen_parameters = NULL;
 
 // =========================================================
-// NEW SDK INITIALIZATION LOGIC
+// SDK INITIALIZATION LOGIC
 // =========================================================
 void InitializeBXSDK() {
-  HINSTANCE hdll = LoadLibrary(L"YQNetCom.dll");
+  HINSTANCE hdll = LoadLibraryW(L"YQNetCom.dll");
   if (hdll == NULL) {
     cout << "ERROR: YQNetCom.dll NOT FOUND in current directory!" << endl;
     return;
@@ -340,139 +342,18 @@ LPCWSTR stringToLPCWSTR(std::string orig) {
   return wcstring;
 }
 
-// =========================================================
-// FIXED: Sends custom text to display safely (OLD COMMENTED BLOCK)
-// =========================================================
-// void Program_dynamic_small(char *ip, int port, LPCWSTR messageText) {
-//   unsigned long playlist = create_playlist(64, 32, 8536);
-//   unsigned long program = create_program(L"program_1",
-//   _TEXT_T("0xff000000"));
+static std::wstring Utf8ToWideString(const char* str) {
+  if (!str || !*str) return L"";
+  int wlen = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
+  if (wlen <= 0) return L"";
+  std::wstring wstr(wlen - 1, 0);
+  MultiByteToWideChar(CP_UTF8, 0, str, -1, &wstr[0], wlen);
+  return wstr;
+}
 
-//   int dynamic_type = 1;
-//   int display_effects = 52;
-//   int display_speed = 10;
-//   int stay_time = 0;
-//   int gif_flag = 0;
-//   LPCWSTR bg_color = L"0xff000000";
-//   LPCWSTR color = L"0xffff0000";
-//   LPCWSTR font_attributes = L"normal";
-//   LPCWSTR font = L"SimSun";
-//   LPCWSTR align_h = L"0";
-//   LPCWSTR align_v = L"0";
-
-//   // Convert wide string to UTF-8 then Base64 encode it
-//   int utf8Len =
-//       WideCharToMultiByte(CP_UTF8, 0, messageText, -1, NULL, 0, NULL, NULL);
-//   char *utf8Str = new char[utf8Len];
-//   WideCharToMultiByte(CP_UTF8, 0, messageText, -1, utf8Str, utf8Len, NULL,
-//                       NULL);
-
-//   std::string encoded = base64_encode(
-//       reinterpret_cast<const unsigned char *>(utf8Str), utf8Len - 1);
-//   delete[] utf8Str;
-
-//   LPCWSTR wcstring = stringToLPCWSTR_Safe(encoded);
-
-//   unsigned long dynamic_area = create_dynamic();
-//   int err = add_dynamic_unit(
-//       dynamic_area, dynamic_type, display_effects, display_speed, stay_time,
-//       wcstring, gif_flag, bg_color, 12, font, color, font_attributes,
-//       align_h, align_v, 0, 0, 0, _TEXT_T(""), _TEXT_T(""));
-
-//   delete[] wcstring;
-
-//   err = add_dynamic(program, dynamic_area, 0, 0, 0, 32, 32, _T(""), 0,
-//   _T(""),
-//                     100);
-//   delete_dynamic(dynamic_area);
-
-//   err = add_program_in_playlist(playlist, program, 1, 10, _T(""), _T(""),
-//                                 _T(""), _T(""), 127);
-
-//   // Hardcoded the board's default username and password "guest"
-//   err = update_dynamic_small(ip, port, L"guest", L"guest", playlist, _T(""),
-//   1,
-//                              0);
-
-//   cancel_send_program(playlist);
-//   delete_playlist(playlist);
-// }
-
-// void Program_dynamic_small(char *ip, int port, LPCWSTR messageText,
-//                            LPCWSTR customColor, int customEffect) {
-//   std::cout << "[SDK] Creating playlist (Width: 48, Height: 16, Type:
-//   8536)..."
-//             << std::endl;
-
-//   unsigned long playlist = create_playlist(48, 16, 8536);
-//   unsigned long program = create_program(L"program_1",
-//   _TEXT_T("0xff000000"));
-
-//   int dynamic_type = 1;
-//   int display_effects = customEffect; // Uses dynamic effect from user
-//   int display_speed = 10;
-//   int stay_time = 0;
-//   int gif_flag = 0;
-//   LPCWSTR bg_color = L"0xff000000";
-//   LPCWSTR font_attributes = L"normal";
-//   LPCWSTR font = L"SimSun";
-//   LPCWSTR align_h = L"0";
-//   LPCWSTR align_v = L"0";
-
-//   int utf8Len =
-//       WideCharToMultiByte(CP_UTF8, 0, messageText, -1, NULL, 0, NULL, NULL);
-//   char *utf8Str = new char[utf8Len];
-//   WideCharToMultiByte(CP_UTF8, 0, messageText, -1, utf8Str, utf8Len, NULL,
-//                       NULL);
-
-//   std::string encoded = base64_encode(
-//       reinterpret_cast<const unsigned char *>(utf8Str), utf8Len - 1);
-//   delete[] utf8Str;
-
-//   LPCWSTR wcstring = stringToLPCWSTR_Safe(encoded);
-
-//   unsigned long dynamic_area = create_dynamic();
-//   int err1 = add_dynamic_unit(
-//       dynamic_area, dynamic_type, display_effects, display_speed, stay_time,
-//       wcstring, gif_flag, bg_color, 12, font, customColor, font_attributes,
-//       align_h, align_v, 0, 0, 0, _TEXT_T(""), _TEXT_T(""));
-
-//   delete[] wcstring;
-
-//   int err2 = add_dynamic(program, dynamic_area, 0, 0, 0, 48, 16, _T(""), 0,
-//                          _T(""), 100);
-
-//   delete_dynamic(dynamic_area);
-
-//   int err3 = add_program_in_playlist(playlist, program, 1, 10, _T(""),
-//   _T(""),
-//                                      _T(""), _T(""), 127);
-
-//   std::cout << "[SDK] Sending to board..." << std::endl;
-//   int err4 = update_dynamic_small(ip, port, L"guest", L"guest", playlist,
-//                                   _T(""), 1, 0);
-
-//   if (err4 == 0) {
-//     std::cout << "[SDK] update_dynamic_small SUCCESS (Returned 0)" <<
-//     std::endl;
-//   } else {
-//     std::cout << "[SDK] update_dynamic_small FAILED with Error Code: " <<
-//     err4
-//               << std::endl;
-//   }
-
-//   cancel_send_program(playlist);
-//   delete_playlist(playlist);
-// }
-
-// 144x32 TOPGRIP FALLBACK BITMAP GENERATOR
-// =========================================================
 // =========================================================
 // RDSO SPN 108 Table 1.4 Dynamic Font Selection Helper Engine
 // =========================================================
-#include <algorithm>
-#include <cwctype>
-
 std::wstring getFontForLanguageW(const std::wstring &langCodeOrText) {
   if (!langCodeOrText.empty()) {
     std::wstring lowerInput = langCodeOrText;
@@ -548,10 +429,12 @@ std::string getFontForLanguage(const std::string &langCode) {
   return std::string(buf.data());
 }
 
-// 144x32 DYNAMIC DEFAULT MESSAGE BITMAP GENERATOR (GDI)
+// =========================================================
+// 432x128 DYNAMIC DEFAULT MESSAGE BITMAP GENERATOR (GDI)
+// =========================================================
 bool GenerateDefaultMessageBMP(LPCWSTR msgText, const wchar_t *outFilePath, LPCWSTR langCode = L"en") {
-  int width = 192;
-  int height = 112;
+  int width = 432;
+  int height = 128;
 
   HDC hdcMem = CreateCompatibleDC(NULL);
   if (!hdcMem)
@@ -597,14 +480,14 @@ bool GenerateDefaultMessageBMP(LPCWSTR msgText, const wchar_t *outFilePath, LPCW
 
   LPCWSTR displayStr = (msgText && wcslen(msgText) > 0) ? msgText : L"TOPGRIP";
   int textLen = (int)wcslen(displayStr);
-  int cellW = width - 4;
+  int cellW = width - 8;
   UINT drawFlags = DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX;
 
   // Resolve dynamic font per RDSO Table 1.4 rules
   std::wstring mappedFont = getFontForLanguageW(langCode && wcslen(langCode) > 0 ? langCode : displayStr);
 
-  // Auto-scale default message font height so long text fits inside 192px box
-  for (int fSize = 28; fSize >= 10; fSize--) {
+  // Auto-scale default message font height so long text fits cleanly inside 432x128 box
+  for (int fSize = 48; fSize >= 12; fSize--) {
     HFONT hFont =
         CreateFontW(fSize, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
                     DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
@@ -612,8 +495,8 @@ bool GenerateDefaultMessageBMP(LPCWSTR msgText, const wchar_t *outFilePath, LPCW
     HFONT hOldF = (HFONT)SelectObject(hdcMem, hFont);
     SIZE textSZ;
     GetTextExtentPoint32W(hdcMem, displayStr, textLen, &textSZ);
-    if (textSZ.cx <= cellW - 2 || fSize == 10) {
-      RECT textRect = {2, 2, width - 2, height - 2};
+    if (textSZ.cx <= cellW - 4 || fSize == 12) {
+      RECT textRect = {4, 4, width - 4, height - 4};
       DrawTextW(hdcMem, displayStr, -1, &textRect, drawFlags);
       SelectObject(hdcMem, hOldF);
       DeleteObject(hFont);
@@ -702,7 +585,7 @@ void ParseRowColors(const std::wstring &colorStr, COLORREF &col1,
     col1 = ParseHexColorStr(tokens[0].c_str(), col1); // Train No
     col2 = ParseHexColorStr(tokens[1].c_str(), col2); // Train Name
     col3 = ParseHexColorStr(tokens[3].c_str(), col3); // Exp Arr Time
-    col4 = ParseHexColorStr(tokens[4].c_str(), col4); // Exp Dep Time
+    col4 = ParseHexColorStr(tokens[4].c_str(), col4); // Exp Dep Time / AD
     col5 = ParseHexColorStr(tokens[5].c_str(), col5); // PF No
     colStatus = ParseHexColorStr(tokens[6].c_str(), colStatus); // Status Color from Settings/API
   } else if (tokens.size() >= 6) {
@@ -725,15 +608,15 @@ void ParseRowColors(const std::wstring &colorStr, COLORREF &col1,
 }
 
 int MapChrToFontHeight(const wchar_t* chrHexStr) {
-  if (!chrHexStr) return 12;
+  if (!chrHexStr) return 14;
   std::wstring hexWStr(chrHexStr);
-  if (hexWStr == L"0x00") return 12;
+  if (hexWStr == L"0x00") return 14;
   if (hexWStr == L"0x01") return 16;
-  if (hexWStr == L"0x02") return 20;
-  if (hexWStr == L"0x03") return 24;
-  if (hexWStr == L"0x04") return 28;
-  if (hexWStr == L"0x05") return 32;
-  return 12;
+  if (hexWStr == L"0x02") return 18;
+  if (hexWStr == L"0x03") return 20;
+  if (hexWStr == L"0x04") return 24;
+  if (hexWStr == L"0x05") return 28;
+  return 14;
 }
 
 LPCWSTR GetCleanStatusText(LPCWSTR statusStr) {
@@ -759,21 +642,56 @@ bool IsCancelledStatus(LPCWSTR statusStr) {
           s.find(L"বাতিল") != std::wstring::npos);
 }
 
+// Helper to extract only platform number / digits for the 5th cell (omitting status text)
+std::wstring GetCleanPlatformText(LPCWSTR pfStr) {
+  if (!pfStr || wcslen(pfStr) == 0) return L"";
+  std::wstring s(pfStr);
+
+  // If there's a delimiter like '#' or ';', take only the first token
+  size_t delimPos = s.find_first_of(L"#;:,");
+  if (delimPos != std::wstring::npos) {
+    s = s.substr(0, delimPos);
+  }
+
+  // Trim leading/trailing whitespace
+  while (!s.empty() && iswspace(s.front())) s.erase(s.begin());
+  while (!s.empty() && iswspace(s.back())) s.pop_back();
+
+  // If prefixed with "PF" or "PF-", extract clean platform identifier/digits
+  if (s.rfind(L"PF", 0) == 0 || s.rfind(L"pf", 0) == 0) {
+    size_t idx = 2;
+    while (idx < s.length() && (s[idx] == L'-' || s[idx] == L' ' || s[idx] == L':')) {
+      idx++;
+    }
+    if (idx < s.length()) {
+      s = s.substr(idx);
+    }
+  }
+
+  return s;
+}
+
 // =========================================================
-// 192x112 7-ROW TABLE BITMAP GENERATOR (GDI - UP TO 7 TRAINS SIMULTANEOUSLY)
+// 432x128 6-ROW DYNAMIC TABLE BITMAP GENERATOR (GDI - 432x128 CANVAS)
+// Exact 5 Physical Columns:
+// Col 1: Train No   [64px]  (X: 0   -> 64)
+// Col 2: Train Name [192px] (X: 64  -> 256)
+// Col 3: Expt Time  [64px]  (X: 256 -> 320)
+// Col 4: A/D        [48px]  (X: 320 -> 368)
+// Col 5: PF No      [64px]  (X: 368 -> 432)
+// Status-based conditional row-merging for cancelled trains across Cols 3-5 (X: 256 -> 432)
 // =========================================================
-bool GenerateTableBMP7Rows(
+bool GenerateTableBMP6Rows(
     LPCWSTR t1No, LPCWSTR t1Name, LPCWSTR t1Eat, LPCWSTR t1Edt, LPCWSTR t1Pf, LPCWSTR t1Sta,
     LPCWSTR t2No, LPCWSTR t2Name, LPCWSTR t2Eat, LPCWSTR t2Edt, LPCWSTR t2Pf, LPCWSTR t2Sta,
     LPCWSTR t3No, LPCWSTR t3Name, LPCWSTR t3Eat, LPCWSTR t3Edt, LPCWSTR t3Pf, LPCWSTR t3Sta,
     LPCWSTR t4No, LPCWSTR t4Name, LPCWSTR t4Eat, LPCWSTR t4Edt, LPCWSTR t4Pf, LPCWSTR t4Sta,
     LPCWSTR t5No, LPCWSTR t5Name, LPCWSTR t5Eat, LPCWSTR t5Edt, LPCWSTR t5Pf, LPCWSTR t5Sta,
     LPCWSTR t6No, LPCWSTR t6Name, LPCWSTR t6Eat, LPCWSTR t6Edt, LPCWSTR t6Pf, LPCWSTR t6Sta,
-    LPCWSTR t7No, LPCWSTR t7Name, LPCWSTR t7Eat, LPCWSTR t7Edt, LPCWSTR t7Pf, LPCWSTR t7Sta,
     LPCWSTR customColorStr, LPCWSTR borderColorHex, LPCWSTR chrHexStr,
     const wchar_t *outFilePath, LPCWSTR langCode = L"en") {
-  int width = 192;
-  int height = 112;
+  int width = 432;
+  int height = 128;
 
   HDC hdcMem = CreateCompatibleDC(NULL);
   if (!hdcMem)
@@ -817,62 +735,70 @@ bool GenerateTableBMP7Rows(
     }
   }
 
-  HPEN hYellowPen = CreatePen(PS_SOLID, 1, borderPenColor);
-  HPEN hOldPen = (HPEN)SelectObject(hdcMem, hYellowPen);
+  HPEN hBorderPen = CreatePen(PS_SOLID, 1, borderPenColor);
+  HPEN hOldPen = (HPEN)SelectObject(hdcMem, hBorderPen);
 
-  // Outer Box Border
+  // Outer Box Border (432x128)
   MoveToEx(hdcMem, 0, 0, NULL);
   LineTo(hdcMem, width - 1, 0);
   LineTo(hdcMem, width - 1, height - 1);
   LineTo(hdcMem, 0, height - 1);
   LineTo(hdcMem, 0, 0);
 
-  // Horizontal Divider Lines for 7 rows (each 16px high: 16*7 = 112): Y=15, 31, 47, 63, 79, 95
-  for (int yLine = 15; yLine < 112 - 1; yLine += 16) {
+  // Horizontal Divider Lines for 6 rows (row height ~21px: Y=21, 42, 64, 85, 106)
+  for (int r = 0; r < 5; r++) {
+    int yLine = (r + 1) * 128 / 6;
     MoveToEx(hdcMem, 0, yLine, NULL);
     LineTo(hdcMem, width - 1, yLine);
   }
 
-  // Vertical Column Dividers across full 112px height:
-  MoveToEx(hdcMem, 28, 0, NULL);
-  LineTo(hdcMem, 28, height - 1);
+  // Vertical Column Dividers across full height:
+  // Col 1 right edge at X = 64
+  MoveToEx(hdcMem, 64, 0, NULL);
+  LineTo(hdcMem, 64, height - 1);
 
-  MoveToEx(hdcMem, 124, 0, NULL);
-  LineTo(hdcMem, 124, height - 1);
+  // Col 2 right edge at X = 256 (64 + 192 = 256)
+  MoveToEx(hdcMem, 256, 0, NULL);
+  LineTo(hdcMem, 256, height - 1);
 
   struct TrainRowData {
     LPCWSTR no, name, eat, edt, pf, sta;
-  } trainRows[7] = {
-      {t1No, t1Name, t1Eat, t1Edt, t1Pf, t1Sta}, {t2No, t2Name, t2Eat, t2Edt, t2Pf, t2Sta},
-      {t3No, t3Name, t3Eat, t3Edt, t3Pf, t3Sta}, {t4No, t4Name, t4Eat, t4Edt, t4Pf, t4Sta},
-      {t5No, t5Name, t5Eat, t5Edt, t5Pf, t5Sta}, {t6No, t6Name, t6Eat, t6Edt, t6Pf, t6Sta},
-      {t7No, t7Name, t7Eat, t7Edt, t7Pf, t7Sta}};
+  } trainRows[6] = {
+      {t1No, t1Name, t1Eat, t1Edt, t1Pf, t1Sta},
+      {t2No, t2Name, t2Eat, t2Edt, t2Pf, t2Sta},
+      {t3No, t3Name, t3Eat, t3Edt, t3Pf, t3Sta},
+      {t4No, t4Name, t4Eat, t4Edt, t4Pf, t4Sta},
+      {t5No, t5Name, t5Eat, t5Edt, t5Pf, t5Sta},
+      {t6No, t6Name, t6Eat, t6Edt, t6Pf, t6Sta}};
 
-  // Render vertical column dividers at X=150 and X=176 for normal (non-cancelled) rows
-  for (int r = 0; r < 7; r++) {
+  // Render vertical column dividers at X=320 and X=368 only for normal (non-cancelled) rows
+  // Col 3: 256..320 (64px) -> Divider at X = 320
+  // Col 4: 320..368 (48px) -> Divider at X = 368
+  // Col 5: 368..432 (64px)
+  for (int r = 0; r < 6; r++) {
     if (!IsCancelledStatus(trainRows[r].sta)) {
-      int yT = r * 16;
-      int yB = (r + 1) * 16 - 1;
-      MoveToEx(hdcMem, 150, yT, NULL);
-      LineTo(hdcMem, 150, yB);
-      MoveToEx(hdcMem, 176, yT, NULL);
-      LineTo(hdcMem, 176, yB);
+      int yT = r * 128 / 6;
+      int yB = (r + 1) * 128 / 6 - 1;
+      MoveToEx(hdcMem, 320, yT, NULL);
+      LineTo(hdcMem, 320, yB);
+      MoveToEx(hdcMem, 368, yT, NULL);
+      LineTo(hdcMem, 368, yB);
     }
   }
 
   SelectObject(hdcMem, hOldPen);
-  DeleteObject(hYellowPen);
+  DeleteObject(hBorderPen);
 
   // Default Column Colors
   COLORREF defC1 = RGB(0, 255, 0);   // Train No (Green)
   COLORREF defC2 = RGB(0, 255, 255); // Train Name (Cyan)
   COLORREF defC3 = RGB(0, 128, 255); // Exp Arr Time (Bright Blue)
-  COLORREF defC4 = RGB(0, 128, 255); // Exp Dep Time (Bright Blue)
+  COLORREF defC4 = RGB(0, 128, 255); // Exp Dep / AD (Bright Blue)
   COLORREF defC5 = RGB(255, 0, 0);   // PF No (Red)
-  COLORREF defC6 = RGB(255, 0, 0);   // Status Color (Red default, or from settings)
+  COLORREF defC6 = RGB(255, 0, 0);   // Status Color (Red default)
 
-  COLORREF rCols[7][6];
-  for (int r = 0; r < 7; r++) {
+  COLORREF rCols[6][6];
+  for (int r = 0; r < 6; r++) {
     rCols[r][0] = defC1;
     rCols[r][1] = defC2;
     rCols[r][2] = defC3;
@@ -889,7 +815,7 @@ bool GenerateTableBMP7Rows(
     while (std::getline(wss, token, L'~')) {
       rowColorTokens.push_back(token);
     }
-    for (size_t r = 0; r < 7; r++) {
+    for (size_t r = 0; r < 6; r++) {
       std::wstring rowColorStr =
           (r < rowColorTokens.size())
               ? rowColorTokens[r]
@@ -906,23 +832,23 @@ bool GenerateTableBMP7Rows(
 
   // Dynamic font height resolution based on CHR parameter
   int baseFontHeight = MapChrToFontHeight(chrHexStr);
-  int tableFontHeight = (baseFontHeight > 14) ? 14 : baseFontHeight;
+  int tableFontHeight = (baseFontHeight > 16) ? 16 : baseFontHeight;
 
-  // Auto-scale font lambda for 16px row height with strict GDI clipping
+  // Auto-scale font lambda with strict GDI clipping
   auto drawScaledText = [&](RECT cellRect, LPCWSTR text, int maxFontHeight,
                             COLORREF textColor) {
     if (!text || wcslen(text) == 0)
       return;
     SetTextColor(hdcMem, textColor);
     int cellW = cellRect.right - cellRect.left;
-    HRGN hRgn = CreateRectRgn(cellRect.left, cellRect.top, cellRect.right,
-                              cellRect.bottom);
+    HRGN hRgn = CreateRectRgn(cellRect.left, cellRect.top, cellRect.right + 1,
+                              cellRect.bottom + 1);
     SelectClipRgn(hdcMem, hRgn);
 
     // Resolve font per RDSO Table 1.4 rules (Language Code or Unicode Text Auto-Detection)
     std::wstring fontNameStr = getFontForLanguageW(langCode && wcslen(langCode) > 0 ? langCode : text);
 
-    int startFont = (maxFontHeight > 14) ? 14 : maxFontHeight;
+    int startFont = (maxFontHeight > 16) ? 16 : maxFontHeight;
     for (int fSize = startFont; fSize >= 6; fSize--) {
       HFONT hFont = CreateFontW(fSize, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
                                 DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
@@ -931,7 +857,7 @@ bool GenerateTableBMP7Rows(
       HFONT hOldF = (HFONT)SelectObject(hdcMem, hFont);
       SIZE textSZ;
       GetTextExtentPoint32W(hdcMem, text, (int)wcslen(text), &textSZ);
-      if (textSZ.cx <= cellW - 1 || fSize == 6) {
+      if (textSZ.cx <= cellW - 2 || fSize == 6) {
         DrawTextW(hdcMem, text, -1, &cellRect, drawFlags);
         SelectObject(hdcMem, hOldF);
         DeleteObject(hFont);
@@ -944,12 +870,14 @@ bool GenerateTableBMP7Rows(
     DeleteObject(hRgn);
   };
 
-  for (int r = 0; r < 7; r++) {
-    int yTop = r * 16 + 1;
-    int yBottom = (r + 1) * 16 - 2;
+  for (int r = 0; r < 6; r++) {
+    int yTop = r * 128 / 6;
+    int yBottom = (r + 1) * 128 / 6 - 1;
 
-    RECT rCol1 = {1, yTop, 27, yBottom};
-    RECT rCol2 = {29, yTop, 123, yBottom};
+    // Col 1: Train No [64px] (1..63)
+    RECT rCol1 = {1, yTop + 1, 63, yBottom};
+    // Col 2: Train Name [192px] (65..255)
+    RECT rCol2 = {65, yTop + 1, 255, yBottom};
 
     drawScaledText(rCol1, trainRows[r].no ? trainRows[r].no : L"", tableFontHeight,
                    rCols[r][0]);
@@ -957,20 +885,26 @@ bool GenerateTableBMP7Rows(
                    rCols[r][1]);
 
     if (IsCancelledStatus(trainRows[r].sta)) {
-      RECT rMergedStatus = {125, yTop, 191, yBottom};
-      COLORREF statusColor = rCols[r][5]; // Configured status color from VDB/AVDB settings screen!
+      // Merged across columns 3, 4, 5 (257..430, 176px span without vertical dividers)
+      RECT rMergedStatus = {257, yTop + 1, 430, yBottom};
+      COLORREF statusColor = rCols[r][5]; // Configured status color (Red default)
       LPCWSTR dispStatus = GetCleanStatusText(trainRows[r].sta);
       drawScaledText(rMergedStatus, (dispStatus && wcslen(dispStatus) > 0) ? dispStatus : L"CANCELLED", tableFontHeight, statusColor);
     } else {
-      RECT rCol3 = {125, yTop, 149, yBottom};
-      RECT rCol4 = {151, yTop, 175, yBottom};
-      RECT rCol5 = {177, yTop, 191, yBottom};
+      // Col 3: Expt Time [64px] (257..319)
+      RECT rCol3 = {257, yTop + 1, 319, yBottom};
+      // Col 4: A/D [48px] (321..367)
+      RECT rCol4 = {321, yTop + 1, 367, yBottom};
+      // Col 5: PF No [64px] (369..430) - Single platform digit/text display omitting status text
+      RECT rCol5 = {369, yTop + 1, 430, yBottom};
+
+      std::wstring cleanPf = GetCleanPlatformText(trainRows[r].pf);
 
       drawScaledText(rCol3, trainRows[r].eat ? trainRows[r].eat : L"", tableFontHeight,
                      rCols[r][2]);
       drawScaledText(rCol4, trainRows[r].edt ? trainRows[r].edt : L"", tableFontHeight,
                      rCols[r][3]);
-      drawScaledText(rCol5, trainRows[r].pf ? trainRows[r].pf : L"", tableFontHeight,
+      drawScaledText(rCol5, cleanPf.c_str(), tableFontHeight,
                      rCols[r][4]);
     }
   }
@@ -1002,15 +936,35 @@ bool GenerateTableBMP7Rows(
   return true;
 }
 
+// 7-Row Table Compatibility Generator (Maps cleanly to 432x128 6-row)
+bool GenerateTableBMP7Rows(
+    LPCWSTR t1No, LPCWSTR t1Name, LPCWSTR t1Eat, LPCWSTR t1Edt, LPCWSTR t1Pf, LPCWSTR t1Sta,
+    LPCWSTR t2No, LPCWSTR t2Name, LPCWSTR t2Eat, LPCWSTR t2Edt, LPCWSTR t2Pf, LPCWSTR t2Sta,
+    LPCWSTR t3No, LPCWSTR t3Name, LPCWSTR t3Eat, LPCWSTR t3Edt, LPCWSTR t3Pf, LPCWSTR t3Sta,
+    LPCWSTR t4No, LPCWSTR t4Name, LPCWSTR t4Eat, LPCWSTR t4Edt, LPCWSTR t4Pf, LPCWSTR t4Sta,
+    LPCWSTR t5No, LPCWSTR t5Name, LPCWSTR t5Eat, LPCWSTR t5Edt, LPCWSTR t5Pf, LPCWSTR t5Sta,
+    LPCWSTR t6No, LPCWSTR t6Name, LPCWSTR t6Eat, LPCWSTR t6Edt, LPCWSTR t6Pf, LPCWSTR t6Sta,
+    LPCWSTR t7No, LPCWSTR t7Name, LPCWSTR t7Eat, LPCWSTR t7Edt, LPCWSTR t7Pf, LPCWSTR t7Sta,
+    LPCWSTR customColorStr, LPCWSTR borderColorHex, LPCWSTR chrHexStr,
+    const wchar_t *outFilePath, LPCWSTR langCode = L"en") {
+  return GenerateTableBMP6Rows(
+      t1No, t1Name, t1Eat, t1Edt, t1Pf, t1Sta,
+      t2No, t2Name, t2Eat, t2Edt, t2Pf, t2Sta,
+      t3No, t3Name, t3Eat, t3Edt, t3Pf, t3Sta,
+      t4No, t4Name, t4Eat, t4Edt, t4Pf, t4Sta,
+      t5No, t5Name, t5Eat, t5Edt, t5Pf, t5Sta,
+      t6No, t6Name, t6Eat, t6Edt, t6Pf, t6Sta,
+      customColorStr, borderColorHex, chrHexStr, outFilePath, langCode);
+}
+
 bool GenerateTableBMP2Rows(LPCWSTR t1No, LPCWSTR t1Name, LPCWSTR t1Eat,
                            LPCWSTR t1Edt, LPCWSTR t1Pf, LPCWSTR t2No,
                            LPCWSTR t2Name, LPCWSTR t2Eat, LPCWSTR t2Edt,
                            LPCWSTR t2Pf, LPCWSTR customColorStr,
                            LPCWSTR borderColorHex, const wchar_t *outFilePath,
                            LPCWSTR langCode = L"en") {
-  return GenerateTableBMP7Rows(t1No, t1Name, t1Eat, t1Edt, t1Pf, L"",
+  return GenerateTableBMP6Rows(t1No, t1Name, t1Eat, t1Edt, t1Pf, L"",
                                t2No, t2Name, t2Eat, t2Edt, t2Pf, L"",
-                               L"", L"", L"", L"", L"", L"",
                                L"", L"", L"", L"", L"", L"",
                                L"", L"", L"", L"", L"", L"",
                                L"", L"", L"", L"", L"", L"",
@@ -1022,8 +976,7 @@ bool GenerateTableBMP2Rows(LPCWSTR t1No, LPCWSTR t1Name, LPCWSTR t1Eat,
 bool GenerateTableBMP(LPCWSTR trainNo, LPCWSTR trainName, LPCWSTR eat,
                       LPCWSTR edt, LPCWSTR pfNo, const wchar_t *outFilePath,
                       LPCWSTR langCode = L"en") {
-  return GenerateTableBMP7Rows(trainNo, trainName, eat, edt, pfNo, L"",
-                               L"", L"", L"", L"", L"", L"",
+  return GenerateTableBMP6Rows(trainNo, trainName, eat, edt, pfNo, L"",
                                L"", L"", L"", L"", L"", L"",
                                L"", L"", L"", L"", L"", L"",
                                L"", L"", L"", L"", L"", L"",
@@ -1078,10 +1031,9 @@ static inline int MapToBxEffect(int effect) {
 static int lastSetIntensity = -1;
 
 // =========================================================
-// TRANSMIT 192x112 TABLE DISPLAY TO BX-Y BOARD (7-ROW SUPPORT & DYNAMIC
-// BRC/INT/EFF/SPD)
+// TRANSMIT 432x128 6-ROW TABLE DISPLAY TO BX-Y2L BOARD
 // =========================================================
-void Program_dynamic_table_7rows(
+void Program_dynamic_table_6rows(
     char *ip, int port,
     LPCWSTR t1No, LPCWSTR t1Name, LPCWSTR t1Eat, LPCWSTR t1Edt, LPCWSTR t1Pf, LPCWSTR t1Sta,
     LPCWSTR t2No, LPCWSTR t2Name, LPCWSTR t2Eat, LPCWSTR t2Edt, LPCWSTR t2Pf, LPCWSTR t2Sta,
@@ -1089,12 +1041,11 @@ void Program_dynamic_table_7rows(
     LPCWSTR t4No, LPCWSTR t4Name, LPCWSTR t4Eat, LPCWSTR t4Edt, LPCWSTR t4Pf, LPCWSTR t4Sta,
     LPCWSTR t5No, LPCWSTR t5Name, LPCWSTR t5Eat, LPCWSTR t5Edt, LPCWSTR t5Pf, LPCWSTR t5Sta,
     LPCWSTR t6No, LPCWSTR t6Name, LPCWSTR t6Eat, LPCWSTR t6Edt, LPCWSTR t6Pf, LPCWSTR t6Sta,
-    LPCWSTR t7No, LPCWSTR t7Name, LPCWSTR t7Eat, LPCWSTR t7Edt, LPCWSTR t7Pf, LPCWSTR t7Sta,
     LPCWSTR customColor, int customEffect,
     LPCWSTR borderColorHex, int intensity, int customSpeed,
     LPCWSTR chrHexStr, LPCWSTR langCode = L"en") {
   std::cout
-      << "[SDK] Creating playlist (Width: 192, Height: 112, Type: 8536)..."
+      << "[SDK] Creating playlist (Width: 432, Height: 128, Type: 8536)..."
       << std::endl;
 
   // Set hardware screen intensity/brightness level only if changed
@@ -1108,7 +1059,7 @@ void Program_dynamic_table_7rows(
 
   wchar_t tempPath[MAX_PATH];
   GetTempPathW(MAX_PATH, tempPath);
-  std::wstring bmpPath = std::wstring(tempPath) + L"led_table_192x112.bmp";
+  std::wstring bmpPath = std::wstring(tempPath) + L"led_table_432x128.bmp";
 
   bool bmpOk = false;
   if (t1No && wcsncmp(t1No, L"DEFAULT_MSG:", 12) == 0) {
@@ -1117,25 +1068,24 @@ void Program_dynamic_table_7rows(
   } else if (t1No && wcscmp(t1No, L"TOPGRIP") == 0) {
     bmpOk = GenerateDefaultMessageBMP(L"TOPGRIP", bmpPath.c_str(), langCode);
   } else {
-    bmpOk = GenerateTableBMP7Rows(
+    bmpOk = GenerateTableBMP6Rows(
         t1No, t1Name, t1Eat, t1Edt, t1Pf, t1Sta,
         t2No, t2Name, t2Eat, t2Edt, t2Pf, t2Sta,
         t3No, t3Name, t3Eat, t3Edt, t3Pf, t3Sta,
         t4No, t4Name, t4Eat, t4Edt, t4Pf, t4Sta,
         t5No, t5Name, t5Eat, t5Edt, t5Pf, t5Sta,
         t6No, t6Name, t6Eat, t6Edt, t6Pf, t6Sta,
-        t7No, t7Name, t7Eat, t7Edt, t7Pf, t7Sta,
         customColor, borderColorHex, chrHexStr ? chrHexStr : L"0x00",
         bmpPath.c_str(), langCode);
   }
 
   if (!bmpOk) {
-    std::cerr << "ERROR: Failed generating 192x112 table BMP image."
+    std::cerr << "ERROR: Failed generating 432x128 table BMP image."
               << std::endl;
   }
 
-  unsigned long playlist = create_playlist(192, 112, 8536);
-  unsigned long program = create_program(L"program_1", _TEXT_T("0xff000000"));
+  unsigned long playlist = create_playlist(432, 128, 8536);
+  unsigned long program = create_program(L"program_1", L"0xff000000");
 
   int display_effects = MapToBxEffect(customEffect);
 
@@ -1168,31 +1118,56 @@ void Program_dynamic_table_7rows(
   int err1 = add_dynamic_unit(dynamic_area, 0, display_effects, display_speed,
                               stay_time, bmpPath.c_str(), gif_flag, bg_color,
                               12, font, customColor, font_attributes, align_h,
-                              align_v, 0, 0, 0, _TEXT_T(""), _TEXT_T(""));
+                              align_v, 0, 0, 0, L"", L"");
 
-  int err2 = add_dynamic(program, dynamic_area, 0, 0, 0, 192, 112, _T(""), 0,
-                         _T(""), 100);
+  int err2 = add_dynamic(program, dynamic_area, 0, 0, 0, 432, 128, L"", 0,
+                         L"", 100);
 
   delete_dynamic(dynamic_area);
 
-  int err3 = add_program_in_playlist(playlist, program, 0, 0, _T(""), _T(""),
-                                     _T(""), _T(""), 127);
+  int err3 = add_program_in_playlist(playlist, program, 0, 0, L"", L"",
+                                     L"", L"", 127);
 
-  std::cout << "[SDK] Pushing 192x112 7-Row Table to Board -> IP: " << ip
+  std::cout << "[SDK] Pushing 432x128 6-Row Table to Board -> IP: " << ip
             << " | Port: " << port << " | EFF: " << customEffect
             << " (BX: " << display_effects << ") | SPD: " << customSpeed
             << " (BX: " << display_speed << ")" << std::endl;
 
-  // Use conver=1 (in-place smooth dynamic update without deleting/blanking
-  // screen to black)
+  // Use conver=1 (in-place smooth dynamic update without deleting/blanking screen to black)
   int err4 = update_dynamic_small(ip, port, L"guest", L"guest", playlist,
-                                  _T(""), 1, 0);
-  if (err4 != 0) {
+                                  L"", 1, 0);
+  if (err4 != 0 && update_dynamic != NULL) {
     err4 = update_dynamic(ip, port, (wchar_t *)L"guest", (wchar_t *)L"guest",
                           playlist, (wchar_t *)L"", 1, 0);
   }
 
   delete_playlist(playlist);
+}
+
+// 7-Row Table Signature Wrapper (Directly maps to 6 rows on 432x128 canvas)
+void Program_dynamic_table_7rows(
+    char *ip, int port,
+    LPCWSTR t1No, LPCWSTR t1Name, LPCWSTR t1Eat, LPCWSTR t1Edt, LPCWSTR t1Pf, LPCWSTR t1Sta,
+    LPCWSTR t2No, LPCWSTR t2Name, LPCWSTR t2Eat, LPCWSTR t2Edt, LPCWSTR t2Pf, LPCWSTR t2Sta,
+    LPCWSTR t3No, LPCWSTR t3Name, LPCWSTR t3Eat, LPCWSTR t3Edt, LPCWSTR t3Pf, LPCWSTR t3Sta,
+    LPCWSTR t4No, LPCWSTR t4Name, LPCWSTR t4Eat, LPCWSTR t4Edt, LPCWSTR t4Pf, LPCWSTR t4Sta,
+    LPCWSTR t5No, LPCWSTR t5Name, LPCWSTR t5Eat, LPCWSTR t5Edt, LPCWSTR t5Pf, LPCWSTR t5Sta,
+    LPCWSTR t6No, LPCWSTR t6Name, LPCWSTR t6Eat, LPCWSTR t6Edt, LPCWSTR t6Pf, LPCWSTR t6Sta,
+    LPCWSTR t7No, LPCWSTR t7Name, LPCWSTR t7Eat, LPCWSTR t7Edt, LPCWSTR t7Pf, LPCWSTR t7Sta,
+    LPCWSTR customColor, int customEffect,
+    LPCWSTR borderColorHex, int intensity, int customSpeed,
+    LPCWSTR chrHexStr, LPCWSTR langCode = L"en") {
+  Program_dynamic_table_6rows(
+      ip, port,
+      t1No, t1Name, t1Eat, t1Edt, t1Pf, t1Sta,
+      t2No, t2Name, t2Eat, t2Edt, t2Pf, t2Sta,
+      t3No, t3Name, t3Eat, t3Edt, t3Pf, t3Sta,
+      t4No, t4Name, t4Eat, t4Edt, t4Pf, t4Sta,
+      t5No, t5Name, t5Eat, t5Edt, t5Pf, t5Sta,
+      t6No, t6Name, t6Eat, t6Edt, t6Pf, t6Sta,
+      customColor, customEffect,
+      borderColorHex, intensity, customSpeed,
+      chrHexStr, langCode);
 }
 
 void Program_dynamic_table_2rows(char *ip, int port, LPCWSTR t1No,
@@ -1202,10 +1177,9 @@ void Program_dynamic_table_2rows(char *ip, int port, LPCWSTR t1No,
                                  LPCWSTR customColor, int customEffect,
                                  LPCWSTR borderColorHex, int intensity,
                                  int customSpeed, LPCWSTR langCode = L"en") {
-  Program_dynamic_table_7rows(
+  Program_dynamic_table_6rows(
       ip, port, t1No, t1Name, t1Eat, t1Edt, t1Pf, L"",
       t2No, t2Name, t2Eat, t2Edt, t2Pf, L"",
-      L"", L"", L"", L"", L"", L"",
       L"", L"", L"", L"", L"", L"",
       L"", L"", L"", L"", L"", L"",
       L"", L"", L"", L"", L"", L"",
@@ -1217,8 +1191,7 @@ void Program_dynamic_table(char *ip, int port, LPCWSTR trainNo,
                            LPCWSTR trainName, LPCWSTR eat, LPCWSTR edt,
                            LPCWSTR pfNo, LPCWSTR customColor,
                            int customEffect, LPCWSTR langCode = L"en") {
-  Program_dynamic_table_7rows(ip, port, trainNo, trainName, eat, edt, pfNo, L"",
-                              L"", L"", L"", L"", L"", L"",
+  Program_dynamic_table_6rows(ip, port, trainNo, trainName, eat, edt, pfNo, L"",
                               L"", L"", L"", L"", L"", L"",
                               L"", L"", L"", L"", L"", L"",
                               L"", L"", L"", L"", L"", L"",
@@ -1230,11 +1203,11 @@ void Program_dynamic_table(char *ip, int port, LPCWSTR trainNo,
 void Program_dynamic_small(char *ip, int port, LPCWSTR messageText,
                            LPCWSTR customColor, int customEffect, LPCWSTR langCode = L"en") {
   std::cout
-      << "[SDK] Creating playlist (Width: 192, Height: 112, Type: 8536)..."
+      << "[SDK] Creating playlist (Width: 432, Height: 128, Type: 8536)..."
       << std::endl;
 
-  unsigned long playlist = create_playlist(192, 112, 8536);
-  unsigned long program = create_program(L"program_1", _TEXT_T("0xff000000"));
+  unsigned long playlist = create_playlist(432, 128, 8536);
+  unsigned long program = create_program(L"program_1", L"0xff000000");
 
   int dynamic_type = 1;
   int display_effects = MapToBxEffect(customEffect);
@@ -1263,22 +1236,22 @@ void Program_dynamic_small(char *ip, int port, LPCWSTR messageText,
   unsigned long dynamic_area = create_dynamic();
   int err1 = add_dynamic_unit(
       dynamic_area, dynamic_type, display_effects, display_speed, stay_time,
-      wcstring, gif_flag, bg_color, 16, font, customColor, font_attributes,
-      align_h, align_v, 0, 0, 0, _TEXT_T(""), _TEXT_T(""));
+      wcstring, gif_flag, bg_color, 24, font, customColor, font_attributes,
+      align_h, align_v, 0, 0, 0, L"", L"");
 
   delete[] wcstring;
 
-  int err2 = add_dynamic(program, dynamic_area, 0, 0, 0, 192, 112, _T(""), 0,
-                         _T(""), 100);
+  int err2 = add_dynamic(program, dynamic_area, 0, 0, 0, 432, 128, L"", 0,
+                         L"", 100);
 
   delete_dynamic(dynamic_area);
 
-  int err3 = add_program_in_playlist(playlist, program, 1, 10, _T(""), _T(""),
-                                     _T(""), _T(""), 127);
+  int err3 = add_program_in_playlist(playlist, program, 1, 10, L"", L"",
+                                     L"", L"", 127);
 
   std::cout << "[SDK] Sending to board..." << std::endl;
   int err4 = update_dynamic_small(ip, port, L"guest", L"guest", playlist,
-                                  _T(""), 1, 0);
+                                  L"", 1, 0);
 
   if (err4 == 0) {
     std::cout << "[SDK] update_dynamic_small SUCCESS (Returned 0)" << std::endl;
@@ -1291,8 +1264,8 @@ void Program_dynamic_small(char *ip, int port, LPCWSTR messageText,
   delete_playlist(playlist);
 }
 
-// Helper to scale high-res image (JPG/PNG/BMP) to 192x112 24-bit BMP using GDI+
-bool ScaleImageTo192x112BMP(LPCWSTR srcImagePath, LPCWSTR outBmpPath) {
+// Helper to scale high-res image (JPG/PNG/BMP) to 432x128 24-bit BMP using GDI+
+bool ScaleImageTo432x128BMP(LPCWSTR srcImagePath, LPCWSTR outBmpPath) {
   ULONG_PTR gdiplusToken;
   GdiplusStartupInput gdiplusStartupInput;
   if (GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL) != Ok) {
@@ -1303,8 +1276,8 @@ bool ScaleImageTo192x112BMP(LPCWSTR srcImagePath, LPCWSTR outBmpPath) {
   {
     Bitmap srcBitmap(srcImagePath);
     if (srcBitmap.GetLastStatus() == Ok) {
-      int dstWidth = 192;
-      int dstHeight = 112;
+      int dstWidth = 432;
+      int dstHeight = 128;
 
       Bitmap dstBitmap(dstWidth, dstHeight, PixelFormat24bppRGB);
       Graphics graphics(&dstBitmap);
@@ -1335,6 +1308,11 @@ bool ScaleImageTo192x112BMP(LPCWSTR srcImagePath, LPCWSTR outBmpPath) {
   return success;
 }
 
+// Backward compatibility helper
+bool ScaleImageTo192x112BMP(LPCWSTR srcImagePath, LPCWSTR outBmpPath) {
+  return ScaleImageTo432x128BMP(srcImagePath, outBmpPath);
+}
+
 void Program_image(char *ip, int port, LPCWSTR imageFilePath) {
   DWORD dwAttrib = GetFileAttributesW(imageFilePath);
   if (dwAttrib == INVALID_FILE_ATTRIBUTES ||
@@ -1348,15 +1326,15 @@ void Program_image(char *ip, int port, LPCWSTR imageFilePath) {
   std::wstring scaledBmpPath =
       std::wstring(tempPath) + L"scaled_temp_image.bmp";
 
-  std::wcout << L"[SDK] Scaling High-Res Image to 192x112 BMP -> "
+  std::wcout << L"[SDK] Scaling High-Res Image to 432x128 BMP -> "
              << imageFilePath << std::endl;
-  bool scaleOk = ScaleImageTo192x112BMP(imageFilePath, scaledBmpPath.c_str());
+  bool scaleOk = ScaleImageTo432x128BMP(imageFilePath, scaledBmpPath.c_str());
   if (!scaleOk) {
-    std::cerr << "ERROR: Failed scaling image to 192x112 BMP." << std::endl;
+    std::cerr << "ERROR: Failed scaling image to 432x128 BMP." << std::endl;
     return;
   }
 
-  std::wcout << L"[SDK] Saved scaled 192x112 bitmap -> " << scaledBmpPath
+  std::wcout << L"[SDK] Saved scaled 432x128 bitmap -> " << scaledBmpPath
              << std::endl;
 
   if (clear_dynamic) {
@@ -1364,31 +1342,31 @@ void Program_image(char *ip, int port, LPCWSTR imageFilePath) {
     Sleep(100);
   }
 
-  std::cout << "[SDK] Creating dynamic playlist for image (Width: 192, Height: "
-               "112, Type: 8536)..."
+  std::cout << "[SDK] Creating dynamic playlist for image (Width: 432, Height: "
+               "128, Type: 8536)..."
             << std::endl;
-  unsigned long playlist = create_playlist(192, 112, 8536);
-  unsigned long program = create_program(L"program_img", _TEXT_T("0xff000000"));
+  unsigned long playlist = create_playlist(432, 128, 8536);
+  unsigned long program = create_program(L"program_img", L"0xff000000");
 
   unsigned long dynamic_area = create_dynamic();
   int err1 =
       add_dynamic_unit(dynamic_area, 0, 52, 10, 65535, scaledBmpPath.c_str(), 0,
                        L"0xff000000", 12, L"Arial", L"yellow", L"normal", L"0",
-                       L"0", 0, 0, 0, _TEXT_T(""), _TEXT_T(""));
+                       L"0", 0, 0, 0, L"", L"");
 
-  int err2 = add_dynamic(program, dynamic_area, 0, 0, 0, 192, 112, _T(""), 0,
-                         _T(""), 100);
+  int err2 = add_dynamic(program, dynamic_area, 0, 0, 0, 432, 128, L"", 0,
+                         L"", 100);
 
   delete_dynamic(dynamic_area);
 
-  int err3 = add_program_in_playlist(playlist, program, 0, 0, _T(""), _T(""),
-                                     _T(""), _T(""), 127);
+  int err3 = add_program_in_playlist(playlist, program, 0, 0, L"", L"",
+                                     L"", L"", 127);
 
-  std::cout << "[SDK] Streaming 192x112 Image Dynamic Area to Board -> IP: "
+  std::cout << "[SDK] Streaming 432x128 Image Dynamic Area to Board -> IP: "
             << ip << " | Port: " << port << std::endl;
 
   int err = update_dynamic_small(ip, (unsigned short)port, L"guest", L"guest",
-                                 playlist, _T(""), 1, 0);
+                                 playlist, L"", 1, 0);
   if (err != 0 && update_dynamic != NULL) {
     err = update_dynamic(ip, (unsigned short)port, (wchar_t *)L"guest",
                          (wchar_t *)L"guest", playlist, (wchar_t *)L"", 1, 0);
@@ -1397,6 +1375,11 @@ void Program_image(char *ip, int port, LPCWSTR imageFilePath) {
   std::cout << "[SDK] update_dynamic_small result code: " << err << std::endl;
 
   delete_playlist(playlist);
+}
+
+void Program_image(char *ip, int port, const char *imageFilePath) {
+  std::wstring wPath = Utf8ToWideString(imageFilePath);
+  Program_image(ip, port, wPath.c_str());
 }
 
 void Program_video(char *ip, int port, LPCWSTR videoFilePath) {
@@ -1416,21 +1399,22 @@ void Program_video(char *ip, int port, LPCWSTR videoFilePath) {
   std::wcout << L"[SDK] Dispatching Program Media Video -> IP: " << ip
              << L":" << port << L" | File: " << videoFilePath << std::endl;
 
-  // 1. Create standard program playlist for 192x112 (BX-Y08 controller type 8536)
-  unsigned long playlist = create_playlist(192, 112, 8536);
-  unsigned long program = create_program(L"video_prog", _TEXT_T("0xff000000"));
+  // 1. Create standard program playlist for 432x128 matrix configuration (BX-Y series type 8536)
+  unsigned long playlist = create_playlist(432, 128, 8536);
+  unsigned long program = create_program(L"video_prog", L"0xff000000");
 
-  // 2. Create video area and add video unit covering 192x112
+  // 2. Create video area and add video unit covering full 432x128 canvas
+  // scale_mode = 1 stretches/fits video cleanly across the full 432x128 matrix
   unsigned long video_area = create_video();
   int err1 = add_video_unit(video_area, 100, 1, 0, 0, videoFilePath, L"");
-  int err2 = add_video(program, video_area, 0, 0, 192, 112, 0, 0, 0, L"", L"");
+  int err2 = add_video(program, video_area, 0, 0, 432, 128, 0, 0, 0, L"", L"");
 
-  // 3. Add program to playlist with loop playback
+  // 3. Add program to playlist with continuous loop playback
   int err3 = add_program_in_playlist(
       playlist, program, 0, 65535,
       L"2020-01-01", L"2035-12-31", L"00:00:00", L"23:59:59", 127);
 
-  // 4. Dispatch via send_program (file playlist upload)
+  // 4. Dispatch via send_program (hardware playlist program upload)
   wchar_t tempPath[MAX_PATH];
   GetTempPathW(MAX_PATH, tempPath);
   long long free_size = 0, total_size = 0;
@@ -1439,7 +1423,7 @@ void Program_video(char *ip, int port, LPCWSTR videoFilePath) {
     try {
       int err = send_program(ip, (unsigned short)port, L"guest", L"guest",
                              tempPath, playlist, 0, &free_size, &total_size);
-      std::cout << "[SDK] send_program (Video Program) result code: " << err
+      std::cout << "[SDK] send_program (Video Program 432x128) result code: " << err
                 << " | Free: " << free_size << " | Total: " << total_size << std::endl;
     } catch (...) {
       std::cerr << "ERROR: Exception occurred while sending video program to LED board."
@@ -1449,11 +1433,16 @@ void Program_video(char *ip, int port, LPCWSTR videoFilePath) {
     std::cerr << "ERROR: send_program function pointer is null." << std::endl;
   }
 
-  // 5. Clean up handles
+  // 5. Clean up playlist resources
   if (cancel_send_program)
     cancel_send_program(playlist);
   if (delete_playlist)
     delete_playlist(playlist);
+}
+
+void Program_video(char *ip, int port, const char *videoFilePath) {
+  std::wstring wPath = Utf8ToWideString(videoFilePath);
+  Program_video(ip, port, wPath.c_str());
 }
 
 // ---------------------------------------------------------
@@ -1462,19 +1451,19 @@ void Program_video(char *ip, int port, LPCWSTR videoFilePath) {
 
 void Program_dynamic_uint_small(char *ip, int port, LPCWSTR str) {
   unsigned long playlist = create_playlist(128, 96, 8536);
-  unsigned long program = create_program(L"program_1", _TEXT_T("0xff000000"));
+  unsigned long program = create_program(L"program_1", L"0xff000000");
 
   int dynamic_type = 1;
   int display_effects = 52;
   int display_speed = 10;
   int stay_time = 0;
   int gif_flag = 0;
-  LPCWSTR bg_color = _T("0xff000000");
-  LPCWSTR color = _T("0xffff0000");
-  LPCWSTR font_attributes = _T("normal");
-  LPCWSTR font = _T("SimSun");
-  LPCWSTR align_h = _T("0");
-  LPCWSTR align_v = _T("0");
+  LPCWSTR bg_color = L"0xff000000";
+  LPCWSTR color = L"0xffff0000";
+  LPCWSTR font_attributes = L"normal";
+  LPCWSTR font = L"SimSun";
+  LPCWSTR align_h = L"0";
+  LPCWSTR align_v = L"0";
 
   std::string file = string_To_UTF8("动态区更新789");
   std::string encoded = base64_encode(
@@ -1484,14 +1473,14 @@ void Program_dynamic_uint_small(char *ip, int port, LPCWSTR str) {
   int err = add_dynamic_unit(dynamic_area, dynamic_type, display_effects,
                              display_speed, stay_time, File, gif_flag, bg_color,
                              12, font, color, font_attributes, align_h, align_v,
-                             0, 0, 0, _TEXT_T(""), _TEXT_T(""));
-  err = add_dynamic(program, dynamic_area, 0, 0, 0, 32, 32, _T(""), 0, _T(""),
+                             0, 0, 0, L"", L"");
+  err = add_dynamic(program, dynamic_area, 0, 0, 0, 32, 32, L"", 0, L"",
                     100);
   delete_dynamic(dynamic_area);
 
-  err = add_program_in_playlist(playlist, program, 1, 10, _T(""), _T(""),
-                                _T(""), _T(""), 127);
-  err = update_dynamic_unit_small(ip, port, str, str, playlist);
+  err = add_program_in_playlist(playlist, program, 1, 10, L"", L"",
+                                L"", L"", 127);
+  err = update_dynamic_unit_small(ip, (unsigned short)port, str, str, playlist);
 
   cancel_send_program(playlist);
   delete_playlist(playlist);
@@ -1499,7 +1488,7 @@ void Program_dynamic_uint_small(char *ip, int port, LPCWSTR str) {
 
 void Program_dynamic(char *ip, int port, LPCWSTR str) {
   unsigned long playlist = create_playlist(64, 32, 8536);
-  unsigned long program = create_program(L"program_1", _TEXT_T("0xff000000"));
+  unsigned long program = create_program(L"program_1", L"0xff000000");
 
   int dynamic_type = 1;
   int display_effects = 52;
@@ -1514,27 +1503,28 @@ void Program_dynamic(char *ip, int port, LPCWSTR str) {
   LPCWSTR align_v = L"0";
 
   LPCWSTR ff = L"1.txt";
-  TCHAR szFilePath[MAX_PATH + 1] = {0};
-  GetModuleFileName(NULL, szFilePath, MAX_PATH);
-  (_tcsrchr(szFilePath, L'\\'))[1] = 0;
-  LPCWSTR f = wcscat(szFilePath, ff);
+  wchar_t szFilePath[MAX_PATH + 1] = {0};
+  GetModuleFileNameW(NULL, szFilePath, MAX_PATH);
+  (wcsrchr(szFilePath, L'\\'))[1] = 0;
+  wcscat_s(szFilePath, ff);
+  LPCWSTR f = szFilePath;
   unsigned long dynamic_area = create_dynamic();
   int err = add_dynamic_unit(dynamic_area, dynamic_type, display_effects,
                              display_speed, stay_time, f, gif_flag, bg_color,
                              12, font, color, font_attributes, align_h, align_v,
-                             0, 0, 0, _TEXT_T(""), _TEXT_T(""));
+                             0, 0, 0, L"", L"");
   err =
-      add_dynamic(program, dynamic_area, 0, 0, 0, 64, 32, _T(""), 0, L"", 100);
+      add_dynamic(program, dynamic_area, 0, 0, 0, 64, 32, L"", 0, L"", 100);
   delete_dynamic(dynamic_area);
 
-  LPCWSTR m_aging_start_time = _T("2018-12-01");
-  LPCWSTR m_aging_stop_time = _T("2018-12-30");
-  LPCWSTR m_period_ontime = _T("15:14:00");
-  LPCWSTR m_period_offtime = _T("15:15:00");
+  LPCWSTR m_aging_start_time = L"2018-12-01";
+  LPCWSTR m_aging_stop_time = L"2018-12-30";
+  LPCWSTR m_period_ontime = L"15:14:00";
+  LPCWSTR m_period_offtime = L"15:15:00";
   err = add_program_in_playlist(playlist, program, 0, 10, m_aging_start_time,
                                 m_aging_stop_time, m_period_ontime,
                                 m_period_offtime, 127);
-  err = update_dynamic(ip, port, str, str, playlist, _T(""), 1, 0);
+  err = update_dynamic(ip, (unsigned short)port, (wchar_t *)str, (wchar_t *)str, playlist, (wchar_t *)L"", 1, 0);
 
   cancel_send_program(playlist);
   delete_playlist(playlist);
@@ -1542,7 +1532,7 @@ void Program_dynamic(char *ip, int port, LPCWSTR str) {
 
 void Program_dynamic_uint(char *ip, int port, LPCWSTR str) {
   unsigned long playlist = create_playlist(128, 96, 8536);
-  unsigned long program = create_program(L"program_1", _TEXT_T("0xff000000"));
+  unsigned long program = create_program(L"program_1", L"0xff000000");
 
   int dynamic_type = 1;
   int display_effects = 52;
@@ -1557,49 +1547,53 @@ void Program_dynamic_uint(char *ip, int port, LPCWSTR str) {
   LPCWSTR align_v = L"0";
 
   LPCWSTR ff = L"2.txt";
-  TCHAR szFilePath[MAX_PATH + 1] = {0};
-  GetModuleFileName(NULL, szFilePath, MAX_PATH);
-  (_tcsrchr(szFilePath, L'\\'))[1] = 0;
-  LPCWSTR f = wcscat(szFilePath, ff);
+  wchar_t szFilePath[MAX_PATH + 1] = {0};
+  GetModuleFileNameW(NULL, szFilePath, MAX_PATH);
+  (wcsrchr(szFilePath, L'\\'))[1] = 0;
+  wcscat_s(szFilePath, ff);
+  LPCWSTR f = szFilePath;
   unsigned long dynamic_area = create_dynamic();
   int err = add_dynamic_unit(dynamic_area, dynamic_type, display_effects,
                              display_speed, stay_time, f, gif_flag, bg_color,
                              12, font, color, font_attributes, align_h, align_v,
-                             0, 0, 0, _TEXT_T(""), _TEXT_T(""));
+                             0, 0, 0, L"", L"");
   err =
-      add_dynamic(program, dynamic_area, 0, 0, 0, 64, 32, _T(""), 0, L"", 100);
+      add_dynamic(program, dynamic_area, 0, 0, 0, 64, 32, L"", 0, L"", 100);
   delete_dynamic(dynamic_area);
 
-  err = add_program_in_playlist(playlist, program, 1, 10, _T(""), _T(""),
-                                _T(""), _T(""), 127);
-  err = update_dynamic_unit(ip, port, str, str, playlist);
+  err = add_program_in_playlist(playlist, program, 1, 10, L"", L"",
+                                L"", L"", 127);
+  err = update_dynamic_unit(ip, (unsigned short)port, (wchar_t *)str, (wchar_t *)str, playlist);
 
   cancel_send_program(playlist);
   delete_playlist(playlist);
 }
 
 void Program_cleardynamic(char *ip, int port, LPCWSTR str) {
-  int err = clear_dynamic(ip, port, str, str);
+  if (clear_dynamic) {
+    int err = clear_dynamic(ip, (unsigned short)port, str, str);
+  }
 }
 
 void Program_bmp(char *ip, int port, LPCWSTR str) {
   unsigned long playlist = create_playlist(128, 96, 8536);
   LPCWSTR name = L"program_1";
-  unsigned long program = create_program(name, _TEXT_T("0xff000000"));
+  unsigned long program = create_program(name, L"0xff000000");
   LPCWSTR ff = L"男.bmp";
-  TCHAR szFilePath[MAX_PATH + 1] = {0};
-  GetModuleFileName(NULL, szFilePath, MAX_PATH);
-  (_tcsrchr(szFilePath, L'\\'))[1] = 0;
-  LPCWSTR file = wcscat(szFilePath, ff);
+  wchar_t szFilePath[MAX_PATH + 1] = {0};
+  GetModuleFileNameW(NULL, szFilePath, MAX_PATH);
+  (wcsrchr(szFilePath, L'\\'))[1] = 0;
+  wcscat_s(szFilePath, ff);
+  LPCWSTR file = szFilePath;
 
   unsigned long pic_area = create_pic();
   int err = add_pic_unit(pic_area, 0, 5, 1, 1, file, L"");
   err = add_pic(program, pic_area, 0, 0, 128, 96, 0, 0, 0, L"", L"");
 
-  LPCWSTR m_aging_start_time = _T("2018-12-01");
-  LPCWSTR m_aging_stop_time = _T("2018-12-30");
-  LPCWSTR m_period_ontime = _T("15:20:00");
-  LPCWSTR m_period_offtime = _T("15:21:00");
+  LPCWSTR m_aging_start_time = L"2018-12-01";
+  LPCWSTR m_aging_stop_time = L"2018-12-30";
+  LPCWSTR m_period_ontime = L"15:20:00";
+  LPCWSTR m_period_offtime = L"15:21:00";
   err = add_program_in_playlist(playlist, program, 0, 10, m_aging_start_time,
                                 m_aging_stop_time, m_period_ontime,
                                 m_period_offtime, 127);
@@ -1607,7 +1601,7 @@ void Program_bmp(char *ip, int port, LPCWSTR str) {
 
   LPCWSTR tmp_path = L"F:\\Temp\\";
   long long free_size = 0, total_size = 0;
-  err = send_program(ip, port, str, str, tmp_path, playlist, send_style,
+  err = send_program(ip, (unsigned short)port, str, str, tmp_path, playlist, send_style,
                      &free_size, &total_size);
 
   cancel_send_program(playlist);
@@ -1617,7 +1611,7 @@ void Program_bmp(char *ip, int port, LPCWSTR str) {
 void Program_time(char *ip, int port, LPCWSTR str) {
   unsigned long playlist = create_playlist(128, 96, 8280);
   LPCWSTR name = L"program_1";
-  unsigned long program = create_program(name, _TEXT_T("0xff000000"));
+  unsigned long program = create_program(name, L"0xff000000");
 
   unsigned long time_area = create_time();
   LPCWSTR content1 = L"%Y年%m月%d日";
@@ -1640,7 +1634,7 @@ void Program_time(char *ip, int port, LPCWSTR str) {
   int send_style = 0;
   LPCWSTR tmp_path = L"F:\\Temp\\";
   long long free_size = 0, total_size = 0;
-  err = send_program(ip, port, str, str, tmp_path, playlist, send_style,
+  err = send_program(ip, (unsigned short)port, str, str, tmp_path, playlist, send_style,
                      &free_size, &total_size);
 
   cancel_send_program(playlist);
@@ -1648,37 +1642,51 @@ void Program_time(char *ip, int port, LPCWSTR str) {
 }
 
 void Program_lock_screen(char *ip, int port, LPCWSTR str, int nlock) {
-  int err = lock_screen(ip, port, str, str, nlock);
+  if (lock_screen) {
+    int err = lock_screen(ip, (unsigned short)port, str, str, nlock);
+  }
 }
 void Program_set_screen_volumn(char *ip, int port, LPCWSTR str, int volumn) {
-  int err = set_screen_volumn(ip, port, str, str, volumn);
+  if (set_screen_volumn) {
+    int err = set_screen_volumn(ip, (unsigned short)port, str, str, volumn);
+  }
 }
 void Program_set_screen_brightness(char *ip, int port, LPCWSTR str,
                                    int brightness) {
-  int err = set_screen_brightness(ip, port, str, str, brightness);
+  if (set_screen_brightness) {
+    int err = set_screen_brightness(ip, (unsigned short)port, str, str, brightness);
+  }
 }
 void Program_set_screen_cus_brightness(char *ip, int port, LPCWSTR str) {
-  unsigned short brightness[48] = {0};
-  for (int i = 0; i < 48; i++) {
-    brightness[i] = 255;
+  if (set_screen_cus_brightness) {
+    unsigned short brightness[48] = {0};
+    for (int i = 0; i < 48; i++) {
+      brightness[i] = 255;
+    }
+    int err = set_screen_cus_brightness(ip, (unsigned short)port, str, str, brightness, 48);
   }
-  int err = set_screen_cus_brightness(ip, port, str, str, brightness, 48);
 }
 void Program_set_screen_turnonoff(char *ip, int port, LPCWSTR str,
                                   int turnonoff) {
-  int err = set_screen_turnonoff(ip, port, str, str, turnonoff);
+  if (set_screen_turnonoff) {
+    int err = set_screen_turnonoff(ip, (unsigned short)port, str, str, turnonoff);
+  }
 }
 void Program_set_screen_cus_turnonoff(char *ip, int port, LPCWSTR str) {
-  unsigned long trunonoff = create_turnonoff();
-  add_turnonoff(trunonoff, 1, L"22:15:00");
-  add_turnonoff(trunonoff, 0, L"22:16:00");
-  add_turnonoff(trunonoff, 1, L"22:24:00");
-  add_turnonoff(trunonoff, 0, L"22:26:00");
-  int err = set_screen_cus_turnonoff(ip, port, str, str, trunonoff);
-  delete_turnonoff(trunonoff);
+  if (create_turnonoff && add_turnonoff && set_screen_cus_turnonoff && delete_turnonoff) {
+    unsigned long trunonoff = create_turnonoff();
+    add_turnonoff(trunonoff, 1, L"22:15:00");
+    add_turnonoff(trunonoff, 0, L"22:16:00");
+    add_turnonoff(trunonoff, 1, L"22:24:00");
+    add_turnonoff(trunonoff, 0, L"22:26:00");
+    int err = set_screen_cus_turnonoff(ip, (unsigned short)port, str, str, trunonoff);
+    delete_turnonoff(trunonoff);
+  }
 }
 void Program_cancel_screen_cus_turnonoff(char *ip, int port, LPCWSTR str) {
-  int err = cancel_screen_cus_turnonoff(ip, port, str, str);
+  if (cancel_screen_cus_turnonoff) {
+    int err = cancel_screen_cus_turnonoff(ip, (unsigned short)port, str, str);
+  }
 }
 
 void Program_str(char *ip, int port, LPCWSTR str) {
@@ -1686,19 +1694,19 @@ void Program_str(char *ip, int port, LPCWSTR str) {
 
   unsigned long playlist = create_playlist(64, 32, 8536);
   LPCWSTR name = L"默认字幕显示";
-  unsigned long program = create_program(name, _TEXT_T("0xff000000"));
+  unsigned long program = create_program(name, L"0xff000000");
   unsigned long area_tree = create_text();
   err = add_text_unit_text(area_tree, 5, 5, L"SimSun", 12, L"normal", L"0",
                            L"0xffff0000", L"0xff000000", L"111111");
   err = add_text(program, area_tree, 0, 0, 64, 32, 100, 4, 1);
 
-  err = add_program_in_playlist(playlist, program, 0, 10, _T(""), _T(""),
-                                _T(""), _T(""), 127);
+  err = add_program_in_playlist(playlist, program, 0, 10, L"", L"",
+                                L"", L"", 127);
   int send_style = 0;
 
   LPCWSTR tmp_path = L"F:\\Temp\\";
   long long free_size = 0, total_size = 0;
-  err = send_program(ip, port, str, str, tmp_path, playlist, send_style,
+  err = send_program(ip, (unsigned short)port, str, str, tmp_path, playlist, send_style,
                      &free_size, &total_size);
 
   cancel_send_program(playlist);
@@ -1710,7 +1718,7 @@ void Program_str1(char *ip, int port, LPCWSTR user_name, LPCWSTR user_pwd) {
   unsigned long play_list = create_playlist(w, h, device_type);
 
   _TEXT_CHAR *name = L"project-1";
-  unsigned long program = create_program(name, _TEXT_T("0xff000000"));
+  unsigned long program = create_program(name, L"0xff000000");
 
   unsigned long text_area = create_text();
   unsigned long text_area1 = create_text();
@@ -1754,13 +1762,13 @@ void Program_str1(char *ip, int port, LPCWSTR user_name, LPCWSTR user_pwd) {
   _TEXT_CHAR *tmp_path = L"F:\\Temp\\";
   int send_style = 0;
   long long free_size, total_size;
-  int sam = send_program(ip, port, user_name, user_pwd, tmp_path, play_list,
+  int sam = send_program(ip, (unsigned short)port, (wchar_t*)user_name, (wchar_t*)user_pwd, tmp_path, play_list,
                          send_style, &free_size, &total_size);
 }
 
 void Program_dynamic1(char *ip, int port, LPCWSTR str) {
   unsigned long playlist = create_playlist(64, 32, 8536);
-  unsigned long program = create_program(L"program_1", _TEXT_T("0xff000000"));
+  unsigned long program = create_program(L"program_1", L"0xff000000");
 
   int dynamic_type = 1;
   int display_effects = 52;
@@ -1777,21 +1785,21 @@ void Program_dynamic1(char *ip, int port, LPCWSTR str) {
   unsigned long dynamic_area = create_dynamic();
   int err = add_dynamic_unit(
       dynamic_area, dynamic_type, display_effects, display_speed, stay_time,
-      _TEXT_T("1.txt"), gif_flag, bg_color, 12, font, color, font_attributes,
-      align_h, align_v, 0, 0, 0, _TEXT_T(""), _TEXT_T(""));
+      L"1.txt", gif_flag, bg_color, 12, font, color, font_attributes,
+      align_h, align_v, 0, 0, 0, L"", L"");
   err = add_dynamic_unit(dynamic_area, 0, display_effects, display_speed,
-                         stay_time, _TEXT_T("1.bmp"), gif_flag, bg_color, 12,
-                         font, color, font_attributes, _TEXT_T("0"),
-                         _TEXT_T("0"), 0, 0, 0, _TEXT_T(""), _TEXT_T(""));
+                         stay_time, L"1.bmp", gif_flag, bg_color, 12,
+                         font, color, font_attributes, L"0",
+                         L"0", 0, 0, 0, L"", L"");
 
   err = add_dynamic(program, dynamic_area, 0, 0, 0, 64, 32, L"", 0, L"", 100);
   delete_dynamic(dynamic_area);
 
-  err = add_program_in_playlist(playlist, program, 0, 10, _T("2018-12-01"),
-                                _T("2018-12-30"), _T("15:14:00"),
-                                _T("15:15:00"), 127);
-  err = update_dynamic(ip, port, _TEXT_T("guest"), _TEXT_T("guest"), playlist,
-                       _T(""), 1, 0);
+  err = add_program_in_playlist(playlist, program, 0, 10, L"2018-12-01",
+                                L"2018-12-30", L"15:14:00",
+                                L"15:15:00", 127);
+  err = update_dynamic(ip, (unsigned short)port, (wchar_t *)L"guest", (wchar_t *)L"guest", playlist,
+                       (wchar_t *)L"", 1, 0);
 
   cancel_send_program(playlist);
   delete_playlist(playlist);
@@ -1800,15 +1808,6 @@ void Program_dynamic1(char *ip, int port, LPCWSTR str) {
 // =========================================================
 // UNIFIED ENTRY POINT: SendToLedBoard
 // =========================================================
-static std::wstring Utf8ToWideString(const char* str) {
-  if (!str || !*str) return L"";
-  int wlen = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
-  if (wlen <= 0) return L"";
-  std::wstring wstr(wlen - 1, 0);
-  MultiByteToWideChar(CP_UTF8, 0, str, -1, &wstr[0], wlen);
-  return wstr;
-}
-
 int SendToLedBoard(const char* ip, unsigned short port, const char* message,
                    int effect, const char* border, int intensity, int speed,
                    int chr, const char* lang) {
@@ -1828,7 +1827,7 @@ int SendToLedBoard(const char* ip, unsigned short port, const char* message,
   wchar_t chrHex[16];
   swprintf_s(chrHex, 16, L"0x%02X", chr & 0xFF);
 
-  // 1. Check if the message is a file on disk (or MEDIA/BGCOLOR keyword)
+  // 1. Check if the message is a file on disk (or MEDIA/BGCOLOR/VIDEO keyword)
   DWORD dwAttrib = wMsg.empty() ? INVALID_FILE_ATTRIBUTES : GetFileAttributesW(wMsg.c_str());
   bool isFile = (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
 
@@ -1890,8 +1889,8 @@ int SendToLedBoard(const char* ip, unsigned short port, const char* message,
       }
     }
 
-    std::wstring rNo[7], rName[7], rEat[7], rEdt[7], rPf[7], rSta[7];
-    for (size_t i = 0; i < 7 && i < rows.size(); ++i) {
+    std::wstring rNo[6], rName[6], rEat[6], rEdt[6], rPf[6], rSta[6];
+    for (size_t i = 0; i < 6 && i < rows.size(); ++i) {
       std::wstringstream rowStream(rows[i]);
       std::getline(rowStream, rNo[i], L'|');
       std::getline(rowStream, rName[i], L'|');
@@ -1901,7 +1900,7 @@ int SendToLedBoard(const char* ip, unsigned short port, const char* message,
       std::getline(rowStream, rSta[i], L'|');
     }
 
-    Program_dynamic_table_7rows(
+    Program_dynamic_table_6rows(
         (char*)ip, (int)port,
         rNo[0].c_str(), rName[0].c_str(), rEat[0].c_str(), rEdt[0].c_str(), rPf[0].c_str(), rSta[0].c_str(),
         rNo[1].c_str(), rName[1].c_str(), rEat[1].c_str(), rEdt[1].c_str(), rPf[1].c_str(), rSta[1].c_str(),
@@ -1909,7 +1908,6 @@ int SendToLedBoard(const char* ip, unsigned short port, const char* message,
         rNo[3].c_str(), rName[3].c_str(), rEat[3].c_str(), rEdt[3].c_str(), rPf[3].c_str(), rSta[3].c_str(),
         rNo[4].c_str(), rName[4].c_str(), rEat[4].c_str(), rEdt[4].c_str(), rPf[4].c_str(), rSta[4].c_str(),
         rNo[5].c_str(), rName[5].c_str(), rEat[5].c_str(), rEdt[5].c_str(), rPf[5].c_str(), rSta[5].c_str(),
-        rNo[6].c_str(), rName[6].c_str(), rEat[6].c_str(), rEdt[6].c_str(), rPf[6].c_str(), rSta[6].c_str(),
         L"yellow", effect, wBorder.c_str(), intensity, speed, chrHex, wLang.c_str()
     );
     return 0;
@@ -1923,10 +1921,9 @@ int SendToLedBoard(const char* ip, unsigned short port, const char* message,
     t1Param = L"DEFAULT_MSG:" + wMsg;
   }
 
-  Program_dynamic_table_7rows(
+  Program_dynamic_table_6rows(
       (char*)ip, (int)port,
       t1Param.c_str(), L"", L"", L"", L"", L"",
-      L"", L"", L"", L"", L"", L"",
       L"", L"", L"", L"", L"", L"",
       L"", L"", L"", L"", L"", L"",
       L"", L"", L"", L"", L"", L"",
