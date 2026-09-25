@@ -94,10 +94,9 @@ function startMediaController() {
 
     console.log('\n[FAILOVER TRIGGERED] CDC Link Down! Launching Media Player on LED Board...');
 
-    mediaProcess = spawn('node', [MEDIA_CONTROLLER_SCRIPT], {
+    mediaProcess = spawn(process.execPath, [MEDIA_CONTROLLER_SCRIPT], {
         cwd: __dirname,
-        stdio: 'inherit',
-        shell: true
+        stdio: 'inherit'
     });
 
     mediaProcess.on('exit', (code) => {

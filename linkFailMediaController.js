@@ -2,11 +2,12 @@ const fs = require('fs');
 const path = require('path');
 const { execFile } = require('child_process');
 
+const { getDynamicBoardIp, DEFAULT_TARGET_IP } = require('./boardIpResolver');
+
 // ================= CONFIGURATION =================
 const MEDIA_DIR = 'D:\\media';
 const NATIVE_DIR = path.join(__dirname, 'native');
 const EXE_PATH = path.join(NATIVE_DIR, 'ledsdk.exe');
-const TARGET_IP = '10.0.30.81';
 const TARGET_PORT = 5005;
 
 // Display duration settings
@@ -105,7 +106,7 @@ async function getCachedVideoDurationMs(filePath) {
 /**
  * Sends a specific media file to the Onbon LED controller
  */
-function sendMediaToBoard(filePath, ip = TARGET_IP, port = TARGET_PORT) {
+function sendMediaToBoard(filePath, ip = getDynamicBoardIp(), port = TARGET_PORT) {
     return new Promise((resolve, reject) => {
         const args = [ip, port.toString(), filePath];
 
@@ -148,10 +149,11 @@ function getMediaFiles() {
  * Infinite loop runner to cycle through offline media playlist
  */
 async function startLinkFailLoop() {
+    const targetIp = getDynamicBoardIp();
     console.log('====================================================');
     console.log('      IPIS Edge VDC - Link Fail Media Player        ');
     console.log(`      Scanning Directory: ${MEDIA_DIR}              `);
-    console.log(`      Target Controller : ${TARGET_IP}:${TARGET_PORT}`);
+    console.log(`      Target Controller : ${targetIp}:${TARGET_PORT}`);
     console.log('====================================================');
 
     let isRunning = true;
@@ -202,8 +204,9 @@ async function startLinkFailLoop() {
                     console.log(`[LinkFail DURATION] ${fileName} -> Fixed Image Hold: ${waitTime}ms (${(waitTime / 1000).toFixed(2)}s)`);
                 }
 
-                // Send media command to LED board
-                await sendMediaToBoard(file);
+                // Send media command to LED board using dynamically resolved IP
+                const currentBoardIp = getDynamicBoardIp();
+                await sendMediaToBoard(file, currentBoardIp);
 
                 // Hold display for the designated duration
                 console.log(`[LinkFail] Holding on display for ${(waitTime / 1000).toFixed(2)}s...`);
@@ -225,6 +228,7 @@ module.exports = {
     sendMediaToBoard,
     getVideoDurationMs,
     getMediaFiles,
+    getDynamicBoardIp,
     IMAGE_HOLD_TIME_MS,
     DEFAULT_VIDEO_FALLBACK_MS,
     VIDEO_TRANSITION_LEAD_MS

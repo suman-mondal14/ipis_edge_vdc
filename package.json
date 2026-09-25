@@ -11,6 +11,7 @@
   "pkg": {
     "assets": [
       "native/**/*",
+      "boardIpResolver.js",
       "linkFailMediaController.js",
       "vdcController.js"
     ]

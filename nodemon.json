@@ -1,0 +1,19 @@
+{
+  "watch": [
+    "index.js",
+    "linkFailMediaController.js",
+    "vdcController.js",
+    "boardIpResolver.js"
+  ],
+  "ignore": [
+    "data/*",
+    "logs/*",
+    "native/*",
+    "public/*",
+    "media/*",
+    "*.log",
+    "*.txt",
+    "*.bmp"
+  ],
+  "ext": "js,mjs,cjs"
+}
